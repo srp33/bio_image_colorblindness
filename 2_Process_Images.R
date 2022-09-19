@@ -33,42 +33,31 @@ article_ids = read_tsv(articles_filepath) %>%
   filter(TYPE == "research article") %>%
   pull(`ARTICLE ID`)
 
-#scores_tbl = NULL
-
-#for (article_id in article_ids) {
-#  article_dirpath = paste0(images_dirpath, "/", article_id)
-#  article_scores_tbl = process_article(article_dirpath)
-#  
-#  if (is.null(article_scores_tbl)) {
-#    scores_tbl <- article_scores_tbl
-#  } else {
-#    scores_tbl <- bind_rows(scores_tbl, article_scores_tbl)
-#  }
-#break
-#}
-
 my.cluster <- parallel::makeCluster(
-  parallel::detectCores() - 1,
+  parallel::detectCores() / 2,
   type = "PSOCK"
 )
 
 doParallel::registerDoParallel(cl = my.cluster)
 
-foreach(
-    article_id = article_ids[1:5],
+x = foreach(
+    article_id = article_ids,
+    .combine = "c",
     .packages = c("colorspace", "dplyr", "magick", "readr", "spacesXYZ", "stringr", "tibble")) %dopar% {
-  process_article(paste0(images_dirpath, "/", article_id, paste0("TempResults/", article_id, ".tsv"))
-)}
-
-scores_tbl = foreach(
-    article_id = article_ids[1:5],
-    .combine = 'bind_rows',
-    .packages = c("readr")) %dopar% {
-  read_tsv(paste0("TempResults/", article_id, ".tsv"))
+      process_article(article_id, paste0(images_dirpath, "/", article_id), paste0("TempResults/", article_id, ".tsv"), ratio_threshold)
 }
 
-parallel::stopCluster(cl = my.cluster)
+write_tsv(tibble(x), "/shared_dirstatus.tsv")
+print("Saved to status.tsv")
 
-print(scores_tbl)
+#scores_tbl = foreach(
+#    article_id = article_ids,
+#    .combine = 'bind_rows',
+#    .packages = c("readr")) %dopar% {
+#  read_tsv(paste0("TempResults/", article_id, ".tsv"))
+#}
+
+#parallel::stopCluster(cl = my.cluster)
 
 #write_tsv(scores_tbl, metrics_filepath)
+#print(paste0("Saved results to ", metrics_filepath))

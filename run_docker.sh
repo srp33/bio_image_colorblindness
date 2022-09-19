@@ -10,10 +10,12 @@ docker build -t ${image_name}:version$(cat VERSION) \
 
 mkdir -p TempResults
 
-#  -d \
+#  -i -t \
 docker run \
-  -i -t \
+  -d \
   --rm \
   --name ${container_name} \
   --user $(id -u):$(id -g) \
-  -v $(pwd):/shared_dir ${image_name}
+  -v $(pwd):/shared_dir \
+  -v /tmp:/tmp \
+  ${image_name}

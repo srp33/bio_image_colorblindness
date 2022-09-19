@@ -1,5 +1,3 @@
-#install.packages(c("httr", "tidyverse", "xml2"))
-
 library(httr)
 library(tidyverse)
 library(xml2)
@@ -18,10 +16,8 @@ if (file.exists(out_file_path)) {
   files <- list.files(path="elife-article-xml/articles", pattern="*.xml", full.names=TRUE)
 
   files_found <- c()
-  all_articles = c()
 
-  a <- 1
-  header_count = 0
+  articles_tbl = NULL
   former_id = ""
   f <- 1
 
@@ -33,6 +29,7 @@ if (file.exists(out_file_path)) {
     #find the current version of the file you are looking at 
     v_number = str_extract(xm, "-v[0-9]+")
     number = str_extract(v_number, "[0-9]+")
+
     #calculates what the next version would be (if it exists)
     v_next_number = sub(number, (strtoi(number)+1), v_number)
     xm_v = sub(v_number, v_next_number, xm)
@@ -70,7 +67,6 @@ if (file.exists(out_file_path)) {
     doi_full = paste0("https://doi.org/", doi)
   
     #gets the article type (i.e. Research Article, Insight, etc)
-    #article_types <- c("research article", "insight", "editorial", "feature article", "short report", "research advance", "registered report", "tools and resources", "scientific correspondence", "replication study", "research communication", "review article")
     type = str_extract_all(xml_content, 'subj-group subj-group-type="display-channel"><subject>[A-Za-z ]+')
   
     type = sub('subj-group subj-group-type="display-channel"><subject>', "", type)
@@ -80,6 +76,7 @@ if (file.exists(out_file_path)) {
     subject = str_extract_all(xml_content, '<subj-group subj-group-type="heading"><subject>[A-Z a-z]+')
     new_subject = c()
     i <- 1
+
     for (s in subject[[1]]) {
       s = sub('<subj-group subj-group-type="heading"><subject>', "", s)
       if (s == type) { #skips the subject if it is the same as "type" (since sometimes it grabs them together)
@@ -87,8 +84,7 @@ if (file.exists(out_file_path)) {
       }
 
       new_subject[i] <- s
-    i <- i+1
-
+      i <- i+1
     }
 
     subjects = paste(unlist(new_subject),collapse=", ")
@@ -110,19 +106,15 @@ if (file.exists(out_file_path)) {
     row_df <- data.frame(matrix(ncol=length(row), nrow=0))
     new_row_df <- rbind(row_df, row)
     colnames(new_row_df) <- c("DOI", "TYPE", "SUBJECT(S)", "DATE", "ARTICLE ID", "VERSION")
-  
-    if (!(article_id %in% all_articles)) { #if we have not yet found an article with this same id
-      all_articles[a] <- article_id
-      a <- a+1
 
-      if (header_count == 0) { #write the header line the line with the column names (header) if it is the first time writing into the file
-        write_tsv(new_row_df, out_file_path, append=TRUE, col_names=TRUE)
-      }
-      else {
-        write_tsv(new_row_df, out_file_path, append=TRUE)
+    if (!(article_id %in% articles_tbl$`ARTICLE ID`)) { #if we have not yet found an article with this same id
+      if (is.null(articles_tbl)) {
+        articles_tbl = new_row_df
+      } else {
+        articles_tbl = bind_rows(articles_tbl, new_row_df)
       }
     }
   }
 
-  header_count = header_count + 1
+  write_tsv(articles_tbl, out_file_path)
 }

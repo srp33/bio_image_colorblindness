@@ -147,38 +147,54 @@ euclidean_dist = function(x1, x2, y1, y2) {
   sqrt((x2 - x1)^2 + (y2 - y1)^2)
 }
 
-process_article = function(article_dirpath, results_file_path) {
+process_article = function(article_id, article_dirpath, results_file_path, ratio_threshold) {
+  if (file.exists(results_file_path))
+      return(paste0("Already saved - ", results_file_path))
+
   # Gets path to images inside an article's directory
   image_file_paths <- list.files(path = article_dirpath, pattern = "elife\\-\\d{5}\\-fig\\d+\\-v\\d+\\.jpg$", full.names = TRUE)
-  
-  if (!file.exists(results_file_path) & length(image_file_paths) > 0) {
-    scores_tbl = NULL
-    for (image_file_path in image_file_paths) {
-      img_scores = process_image(image_file_path)
+
+  if (length(image_file_paths) == 0)
+      return(paste0("No images - ", results_file_path))
+
+  scores_tbl = NULL
+  for (image_file_path in image_file_paths) {
+      img_scores = NULL
+
+      tryCatch(
+          expr = { img_scores = process_image(article_id, image_file_path, ratio_threshold) },
+          error = function(e) { exc = e },
+          warning = function(w) { }
+      )
+
+      if (is.null(img_scores))
+          next
 
       if (is.null(scores_tbl)) {
-        scores_tbl <- img_scores
+          scores_tbl <- img_scores
       } else {
-        scores_tbl <- bind_rows(scores_tbl, img_scores)
+          scores_tbl <- bind_rows(scores_tbl, img_scores)
       }
-    }
+  }
 
-    write_tsv(scores_tbl, results_file_path)
+  if (is.null(scores_tbl)) {
+      return(paste0("Error occurred so that no valid images were found - ", results_file_path))
+  } else {
+      write_tsv(scores_tbl, results_file_path)
+      return(paste0("Saved - ", results_file_path))
   }
 }
 
-process_image = function(image_file_path) {
-  print(paste0("Processing ", image_file_path))
-
+process_image = function(article_id, image_file_path, ratio_threshold) {
   # Read in the normal vision image
   img <- image_read(image_file_path)
-    
+   
   is_rgb <- image_info(img) %>%
     filter(colorspace == "sRGB") %>%
     nrow() > 0
 
   if (!is_rgb)
-    return(NULL)
+    return(tibble(article_id, image_file_path, is_rgb = 0, max_ratio = NA, num_high_ratios = NA, proportion_high_ratio_pixels = NA, mean_delta = NA, euclidean_distance_metric = NA))
     
   scale_height_pixels = 300
   max_colors = 256
@@ -226,7 +242,7 @@ process_image = function(image_file_path) {
   high_deut_ratios = sort(deut_ratios[deut_ratios > ratio_threshold], decreasing = TRUE)
     
   high_deut_colors = sapply(names(high_deut_ratios), function(x) {str_split(x, "_")[[1]]}) %>% as.vector() %>% unique()
-  proportion_high_deut_ratio_pixels = filter(img_tbl, original_hex %in% high_deut_colors) %>%
+  proportion_high_ratio_pixels = filter(img_tbl, original_hex %in% high_deut_colors) %>%
     nrow() %>%
     `/`(nrow(img_tbl))
     
@@ -252,7 +268,7 @@ process_image = function(image_file_path) {
   # }
     
   # Calculate the mean delta between original and deut image.
-  mean_deut_delta = filter(img_tbl, !is_gray) %>%
+  mean_delta = filter(img_tbl, !is_gray) %>%
     pull(deut_delta) %>%
     mean()
     
@@ -262,7 +278,6 @@ process_image = function(image_file_path) {
   for (hex_pair in names(high_deut_ratios)) {
     hex1 = str_split(hex_pair, "_")[[1]][1]
     hex2 = str_split(hex_pair, "_")[[1]][2]
-    #print(paste0("Finding euclidean distances for ", hex1, " and ", hex2))
 
     distances = get_euclidean_distances(original_hex_matrix, hex1, hex2)
     # Get the smallest distances and then calculate a summary statistic
@@ -270,5 +285,5 @@ process_image = function(image_file_path) {
     distance_metrics = c(distance_metrics, median(distances, na.rm=TRUE))
   }
     
-  return(tibble(image_file_path, max_ratio, num_high_ratio_colors = length(high_deut_ratios), proportion_high_deut_ratio_pixels, mean_deut_delta, euclidean_distance_metric = min(distance_metrics, na.rm = TRUE)))
+  return(tibble(article_id, image_file_path, is_rgb = 1, max_ratio, num_high_ratios = length(high_deut_ratios), proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric = min(distance_metrics, na.rm = TRUE)))
 }
