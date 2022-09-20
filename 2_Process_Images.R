@@ -16,16 +16,12 @@ articles_filepath = "all_eLife_articles.tsv"
 # This is where the images downloaded from eLife are stored.
 images_dirpath = "Images"
 
-modimages_dirpath = "ModImages"
-
 # This script will create this file.
 metrics_filepath = "eLife_Metrics.csv"
 
 ratio_threshold = 5
 
 #######################################################################################
-
-#dir.create(modimages_dirpath, recursive = TRUE, showWarnings = FALSE)
 
 source("Functions.R")
 
@@ -47,17 +43,19 @@ x = foreach(
       process_article(article_id, paste0(images_dirpath, "/", article_id), paste0("TempResults/", article_id, ".tsv"), ratio_threshold)
 }
 
-write_tsv(tibble(x), "/shared_dirstatus.tsv")
+write_tsv(tibble(x), "/shared_dir/status.tsv")
 print("Saved to status.tsv")
 
-#scores_tbl = foreach(
-#    article_id = article_ids,
-#    .combine = 'bind_rows',
-#    .packages = c("readr")) %dopar% {
-#  read_tsv(paste0("TempResults/", article_id, ".tsv"))
-#}
+tmp_file_paths = list.files(path="TempResults", pattern="*.tsv", full.names=TRUE)
 
-#parallel::stopCluster(cl = my.cluster)
+scores_tbl = foreach(
+    tmp_file_path = tmp_file_paths,
+    .combine = 'bind_rows',
+    .packages = c("readr")) %dopar% {
+  read_tsv(tmp_file_path, col_types = c("c", "c", "d", "d", "d", "d", "d"))
+}
 
-#write_tsv(scores_tbl, metrics_filepath)
-#print(paste0("Saved results to ", metrics_filepath))
+parallel::stopCluster(cl = my.cluster)
+
+write_tsv(scores_tbl, metrics_filepath)
+print(paste0("Saved results to ", metrics_filepath))

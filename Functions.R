@@ -71,7 +71,7 @@ find_color_ratios <- function(hex) {
       hex_pairs = c(hex_pairs, hex_pair)
       
       orig_delta = find_hex_delta(hex1, hex2)
-      deut_delta = find_hex_delta(deutan(hex1, severity=1), deutan(hex2, severity=1))
+      deut_delta = find_hex_delta(deutan(hex1, severity=0.8), deutan(hex2, severity=0.8))
       
       ratio = NA
       
@@ -162,7 +162,7 @@ process_article = function(article_id, article_dirpath, results_file_path, ratio
       img_scores = NULL
 
       tryCatch(
-          expr = { img_scores = process_image(article_id, image_file_path, ratio_threshold) },
+          expr = { img_scores = calculate_image_metrics(article_id, image_file_path, ratio_threshold) },
           error = function(e) { exc = e },
           warning = function(w) { }
       )
@@ -185,7 +185,7 @@ process_article = function(article_id, article_dirpath, results_file_path, ratio
   }
 }
 
-process_image = function(article_id, image_file_path, ratio_threshold) {
+calculate_image_metrics = function(article_id, image_file_path, ratio_threshold) {
   # Read in the normal vision image
   img <- image_read(image_file_path)
    
@@ -216,20 +216,12 @@ process_image = function(article_id, image_file_path, ratio_threshold) {
   # Create tibble that has hex values and additional information
   img_tbl = tibble(r = as.vector(r), g = as.vector(g), b = as.vector(b)) %>%
     mutate(original_hex = str_c("#", str_to_upper(str_c(r, g, b)))) %>%
-    mutate(deut_hex = deutan(original_hex, severity=1)) %>%
+    mutate(deut_hex = deutan(original_hex, severity=0.8)) %>%
     mutate(is_gray = (r == g & g == b)) %>%
     mutate(deut_delta = find_hex_deltas(original_hex, deut_hex))
     
   # Save modified versions of images
   original_hex = pull(img_tbl, original_hex)
-  #original_img = convert_hex_vector_to_image(original_hex, dim(img_data))
-  #deut_hex = pull(img_tbl, deut_hex)
-  #deut_img = convert_hex_vector_to_image(deut_hex, dim(img_data))
-    
-  #out_dir_path = paste0(modimages_dirpath, "/", sub(".jpg", "", basename(image_file_path)))
-  #dir.create(out_dir_path, recursive = TRUE, showWarnings = FALSE)
-  #image_write(original_img, paste0(out_dir_path, "/original.jpg"), quality = 100)
-  #image_write(deut_img, paste0(out_dir_path, "/deut.jpg"), quality = 100)
 
   # Calculate ratios between all color pairs
   # https://vis4.net/blog/2018/02/automate-colorblind-checking/
@@ -286,4 +278,47 @@ process_image = function(article_id, image_file_path, ratio_threshold) {
   }
     
   return(tibble(article_id, image_file_path, is_rgb = 1, max_ratio, num_high_ratios = length(high_deut_ratios), proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric = min(distance_metrics, na.rm = TRUE)))
+}
+
+create_simulated_image = function(in_file_path, out_file_path) {
+  # Read in the normal vision image
+  img <- image_read(in_file_path)
+   
+  # The first dimension has RGB codes.
+  # The second dimension is the width.
+  # The third dimension is the height.
+  img_data = NULL
+  tryCatch(
+    expr = {
+        img_data = image_data(img, channels="rgb")[,,]
+    },
+    error = function(e) {
+        img = image_convert(img, colorspace="rgb")
+        img_data = image_data(img, channels="rgb")[,,]
+    },
+    warning = function(w) { }
+  )
+
+  # This happens when there is a corrupt image file
+  if (is.null(img_data))
+      return(NULL)
+
+  # Extract channels
+  r = img_data[1,,]
+  g = img_data[2,,]
+  b = img_data[3,,]
+    
+  # Create tibble that has hex values and additional information
+  img_tbl = tibble(r = as.vector(r), g = as.vector(g), b = as.vector(b)) %>%
+    mutate(original_hex = str_c("#", str_to_upper(str_c(r, g, b)))) %>%
+    mutate(deut_hex = deutan(original_hex, severity=0.8))
+    
+  # Save modified versions of images
+  deut_hex = pull(img_tbl, deut_hex)
+  deut_img = convert_hex_vector_to_image(deut_hex, dim(img_data))
+    
+  out_dir_path = dirname(out_file_path)
+  dir.create(out_dir_path, recursive = TRUE, showWarnings = FALSE)
+
+  image_write(deut_img, out_file_path, quality = 100)
 }
