@@ -1,0 +1,10 @@
+library(colorspace)
+library(doParallel)
+library(foreach)
+library(grid)
+library(magick)
+library(spacesXYZ)
+library(tidyverse)
+library(xml2)
+
+sessionInfo()

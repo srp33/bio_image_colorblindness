@@ -10,6 +10,7 @@ num_to_sample = as.numeric(commandArgs(trailingOnly=TRUE)[1])
 out_dirpath = commandArgs(trailingOnly=TRUE)[2]
 out_filepath = commandArgs(trailingOnly=TRUE)[3]
 alreadysampled_filepath = commandArgs(trailingOnly=TRUE)[4]
+alreadysampled_filepath2 = commandArgs(trailingOnly=TRUE)[5]
 
 #######################################################################################
 
@@ -46,8 +47,14 @@ process_image = function(image_file_path) {
   create_simulated_image(image_file_path, deut_file_path)
 }
 
-alreadysampled_image_file_paths = read_tsv(alreadysampled_filepath) %>%
-    pull(image_file_path)
+alreadysampled_data = read_tsv(alreadysampled_filepath)
+
+if (!is.na(alreadysampled_filepath2)) {
+  alreadysampled_data2 = read_tsv(alreadysampled_filepath2)
+  alreadysampled_data = bind_rows(alreadysampled_data, alreadysampled_data2)
+}
+
+alreadysampled_image_file_paths = pull(alreadysampled_data, image_file_path)
 
 set.seed(33)
 
