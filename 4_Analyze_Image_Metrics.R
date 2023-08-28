@@ -7,4 +7,3 @@ library(tidyverse)
 #    And/or use a classification algorithm to see how well we can predict "colorblind friendly status".
 
 source("Functions.R")
-
