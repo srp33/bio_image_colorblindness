@@ -15,7 +15,7 @@ alreadysampled_filepath2 = commandArgs(trailingOnly=TRUE)[5]
 #######################################################################################
 
 # This file is created by 2_Process_Images.R
-metrics_filepath = "eLife_Metrics.csv"
+metrics_filepath = "eLife_Metrics.tsv"
 
 # This is where the images downloaded from eLife are stored.
 images_dirpath = "Images"

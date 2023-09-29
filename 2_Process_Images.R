@@ -17,7 +17,7 @@ articles_filepath = "all_eLife_articles.tsv"
 images_dirpath = "Images"
 
 # This script will create this file.
-metrics_filepath = "eLife_Metrics.csv"
+metrics_filepath = "eLife_Metrics.tsv"
 
 ratio_threshold = 5
 
