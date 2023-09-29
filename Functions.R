@@ -230,9 +230,9 @@ calculate_image_metrics = function(article_id, image_file_path, ratio_threshold)
   # Find color pair with highest ratio
   max_ratio_hex_pair = extract_ratio_hex_pair(deut_ratios, 1)
   max_ratio = deut_ratios[paste0(max_ratio_hex_pair, collapse="_")]
-    
+
   high_deut_ratios = sort(deut_ratios[deut_ratios > ratio_threshold], decreasing = TRUE)
-    
+
   high_deut_colors = sapply(names(high_deut_ratios), function(x) {str_split(x, "_")[[1]]}) %>% as.vector() %>% unique()
   proportion_high_ratio_pixels = filter(img_tbl, original_hex %in% high_deut_colors) %>%
     nrow() %>%
