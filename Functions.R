@@ -188,7 +188,15 @@ process_article = function(article_id, article_dirpath, results_file_path, ratio
 calculate_image_metrics = function(article_id, image_file_path, ratio_threshold) {
   # Read in the normal vision image
   img <- image_read(image_file_path)
-   
+
+  is_cmyk <- image_info(img) %>%
+    filter(colorspace == "CMYK") %>%
+    nrow() > 0
+  
+  if (is_cmyk) {
+    img <- image_convert(img, colorspace="srgb")
+  }
+  
   is_rgb <- image_info(img) %>%
     filter(colorspace == "sRGB") %>%
     nrow() > 0
