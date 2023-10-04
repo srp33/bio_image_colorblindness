@@ -4,7 +4,7 @@ set -o errexit
 
 #Rscript /shared_dir/0_Show_Package_Versions.R
 #Rscript /shared_dir/1_Parse_Articles_from_XML.R
-#Rscript /shared_dir/2_Process_Images.R
+Rscript /shared_dir/2_Process_Images.R
 
 # I ran this before we had the most recent collection of images, so it is not fully reproducible.
 #Rscript /shared_dir/3_Sample_Images.R 1000 "ImageSample1000" "ImageSample1000_Metrics.tsv" NULL
