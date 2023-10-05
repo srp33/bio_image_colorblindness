@@ -167,8 +167,9 @@ process_article = function(article_id, article_dirpath, results_file_path, ratio
           warning = function(w) { }
       )
 
-      if (is.null(img_scores))
+      if (is.null(img_scores)) {
           next
+      }
 
       if (is.null(scores_tbl)) {
           scores_tbl <- img_scores
@@ -273,25 +274,32 @@ calculate_image_metrics = function(article_id, image_file_path, ratio_threshold)
     mean()
     
   # For the color pairs that have the highest ratios, what is the average Euclidean distance between them?
-  original_hex_matrix = create_hex_matrix(original_hex, dim(img_data))
-  distance_metrics = c()
-  for (hex_pair in names(high_deut_ratios)) {
-    hex1 = str_split(hex_pair, "_")[[1]][1]
-    hex2 = str_split(hex_pair, "_")[[1]][2]
+  if (length(high_deut_ratios) == 0) {
+    euclidean_distance_metric = NA
+  } else {
+    original_hex_matrix = create_hex_matrix(original_hex, dim(img_data))
+    distance_metrics = c()
 
-    distances = get_euclidean_distances(original_hex_matrix, hex1, hex2)
-    # Get the smallest distances and then calculate a summary statistic
-    distances = sort(distances)[1:ceiling(length(distances) * 0.1)]
-    distance_metrics = c(distance_metrics, median(distances, na.rm=TRUE))
+    for (hex_pair in names(high_deut_ratios)) {
+      hex1 = str_split(hex_pair, "_")[[1]][1]
+      hex2 = str_split(hex_pair, "_")[[1]][2]
+
+      distances = get_euclidean_distances(original_hex_matrix, hex1, hex2)
+      # Get the smallest distances and then calculate a summary statistic
+      distances = sort(distances)[1:ceiling(length(distances) * 0.1)]
+      distance_metrics = c(distance_metrics, median(distances, na.rm=TRUE))
+    }
+
+    euclidean_distance_metric = min(distance_metrics, na.rm = TRUE)
   }
-    
-  return(tibble(article_id, image_file_path, is_rgb = 1, max_ratio, num_high_ratios = length(high_deut_ratios), proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric = min(distance_metrics, na.rm = TRUE)))
+
+  return(tibble(article_id, image_file_path, is_rgb = 1, max_ratio, num_high_ratios = length(high_deut_ratios), proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric = euclidean_distance_metric))
 }
 
 create_simulated_image = function(in_file_path, out_file_path) {
   # Read in the normal vision image
   img <- image_read(in_file_path)
-   
+
   # The first dimension has RGB codes.
   # The second dimension is the width.
   # The third dimension is the height.
