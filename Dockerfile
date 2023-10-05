@@ -11,3 +11,7 @@ WORKDIR /shared_dir
 ENTRYPOINT /shared_dir/exec_inside_docker.sh
 
 ADD *.R /shared_dir/
+ADD requirements.txt /shared_dir/
+
+RUN python3 -m pip install --upgrade pip \
+ && python3 -m pip install -r /shared_dir/requirements.txt

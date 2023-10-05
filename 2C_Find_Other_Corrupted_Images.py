@@ -1,9 +1,6 @@
+import glob
 from struct import unpack
-#from tqdm import tqdm
-import os
-import shutil
 
-#Iterates through a folder to determine if an image is corrupt. 
 #Used Yasoob's script. https://yasoob.me/posts/understanding-and-writing-jpeg-decoder-in-python/
 
 marker_mapping = {
@@ -16,15 +13,15 @@ marker_mapping = {
     0xffd9: "End of Image"
 }
 
-
 #JPEG class was copied from https://yasoob.me/posts/understanding-and-writing-jpeg-decoder-in-python/
 class JPEG:
     def __init__(self, image_file):
         with open(image_file, 'rb') as f:
             self.img_data = f.read()
-    
+
     def decode(self):
         data = self.img_data
+
         while(True):
             #open the image_data, >H tells struct to treat the data as big-endian and as unsigned short.
             #Read first three big-endian values
@@ -40,28 +37,25 @@ class JPEG:
                 data = data[-2:]
             else:
                 lenchunk, = unpack(">H", data[2:4])
-                data = data[2+lenchunk:]            
+                data = data[2+lenchunk:]
             if len(data)==0:
-                break        
+                break
 
+#Iterate through all images and print path of each corrupted image.
+for image_dir_path in sorted(glob.glob("/shared_dir/ImageSample1to5000/*")):
+    original_file_path = f"{image_dir_path}/original.jpg"
+    deut_file_path = f"{image_dir_path}/deut.jpg"
 
-bads = []
+    original_image = JPEG(original_file_path)
 
-imagesDir=["TrainingDataset/CVDfriendly", "TrainingDataset/CVDunfriendly", "TestImages/CVDfriendly","TestImages/CVDunfriendly"]
+    try:
+        original_image.decode()
+    except:
+        print(f"{original_file_path} is corrupted.")
 
-#Iterate through all directories in imagesDir and removes the bad images to a Corrupt Image folder.
-for images in imagesDir:    
-    for img in os.listdir(images):
-        image = os.path.join(images,img)
-        image = JPEG(image)
-        try:
-            image.decode()
-        except:
-            bads.append(img)    
+    deut_image = JPEG(deut_file_path)
 
-    for name in bads:
-        print(name,images)
-        file = os.path.join(images,name)
-        dst = os.path.join("CorruptImages",name)
-        shutil.move(file, dst)
-    #os.remove(os.path.join(images,name))
+    try:
+        deut_image.decode()
+    except:
+        print(f"{deut_file_path} is corrupted.")

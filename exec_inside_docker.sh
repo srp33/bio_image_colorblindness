@@ -47,5 +47,6 @@ set -o errexit
 
 #Rscript /shared_dir/2B_Process_Corrupted_Images.R
 
-#2C_Find_Other_Corrupted_Images.py
-python3
+#python3 /shared_dir/2C_Find_Other_Corrupted_Images.py
+#NOTE: This didn't find any corrupted images.
+
