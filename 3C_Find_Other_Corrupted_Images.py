@@ -41,8 +41,8 @@ class JPEG:
             if len(data)==0:
                 break
 
-#Iterate through all images and print path of each corrupted image.
-for image_dir_path in sorted(glob.glob("/shared_dir/ImageSample1to5000/*")):
+def check_image(image_dir_path):
+    print(image_dir_path)
     original_file_path = f"{image_dir_path}/original.jpg"
     deut_file_path = f"{image_dir_path}/deut.jpg"
 
@@ -59,3 +59,10 @@ for image_dir_path in sorted(glob.glob("/shared_dir/ImageSample1to5000/*")):
         deut_image.decode()
     except:
         print(f"{deut_file_path} is corrupted.")
+
+#Iterate through all images and print path of each corrupted image.
+for image_dir_path in sorted(glob.glob("/shared_dir/ImageSample1to5000/*")):
+    check_image(image_dir_path)
+
+for image_dir_path in sorted(glob.glob("/shared_dir/ImageSample5001to6000/*")):
+    check_image(image_dir_path)

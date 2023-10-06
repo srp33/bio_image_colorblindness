@@ -72,10 +72,4 @@ x = foreach(
   process_image(image_file_path)
 }
 
-#for (image_file_path in image_file_paths) {
-#  process_image(image_file_path)
-#}
-
-write_tsv(image_data, out_filepath)
-
 parallel::stopCluster(cl = my.cluster)
