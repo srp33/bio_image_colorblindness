@@ -1,15 +1,23 @@
 library(tidyverse)
-
-#img <- image_read("~/Downloads/elife-27134-fig7-v2.jpg")
-img <- image_read("~/Downloads/original.jpg")
-img <- image_convert(img, colorspace="srgb")
-is_rgb <- image_info(img) %>%
-  filter(colorspace == "sRGB") %>%
-  nrow() > 0
-
-
+library(tidymodels)
+library(randomForest)
+library(yardstick)
 
 metrics_data = read_tsv("eLife_Metrics.tsv")
+
+###############################################
+# Use a ranking approach to combine the metrics
+# into a single score
+###############################################
+
+# A lower rank signals a greater possibility of being unfriendly.
+
+metrics_data = mutate(metrics_data, combined_score =
+                        (rank(-max_ratio) +
+                         rank(-num_high_ratios) +
+                         rank(-proportion_high_ratio_pixels) +
+                         rank(-mean_delta) +
+                         rank(euclidean_distance_metric)) / 5)
 
 ###############################################
 # Grayscale vs. RGB images
@@ -20,57 +28,57 @@ x = group_by(metrics_data, is_rgb) %>%
   arrange(is_rgb)
 
 print("Num grayscale:")
-print(x$Count[1]) #2940
+print(x$Count[1]) #1898
 
 print("Num RGB:")
-print(x$Count[2]) #62986
+print(x$Count[2]) #63867
 
-print("Num both:")
-print(sum(x$Count)) #65926
+print("Num total:")
+print(sum(x$Count)) #65765
 
 print("Percentage grayscale:")
-print(100 * x$Count[1] / sum(x$Count)) #4.459%
+print(100 * x$Count[1] / sum(x$Count)) #2.89%
 
 print("Percentage RGB:")
-print(100 * x$Count[2] / sum(x$Count)) #95.540%
+print(100 * x$Count[2] / sum(x$Count)) #97.11%
 
 ###############################################
-# Plot metrics for all images
+# Plot metrics for RGB images
 ###############################################
 
-metrics_data = filter(metrics_data, is_rgb == 1)
+plot_data = filter(metrics_data, is_rgb == 1)
 
 # The mean, pixel-wise color distance between the original and simulated image
-ggplot(metrics_data, aes(x = mean_delta)) +
-  geom_histogram() +
+ggplot(plot_data, aes(x = mean_delta)) +
+  geom_histogram(binwidth = 0.005) +
   xlab("Mean, pixel-wise color distance\nbetween original and simulated images") +
   ylab("Count") +
   theme_bw()
 
 # The color-distance ratio between the original and simulated images for the color pair with the largest distance in the original image
-ggplot(metrics_data, aes(x = max_ratio)) +
-  geom_histogram() +
+ggplot(plot_data, aes(x = max_ratio)) +
+  geom_histogram(binwidth = 1) +
   xlab("Maximum color-distance ratio\nbetween original and simulated images") +
   ylab("Count") +
   theme_bw()
 
 # The number of color pairs that exhibited a high color-distance ratio between the original and simulated images
-ggplot(metrics_data, aes(x = num_high_ratios)) +
-  geom_histogram() +
+ggplot(plot_data, aes(x = num_high_ratios)) +
+  geom_histogram(binwidth=5) +
   xlab("Number of high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
 
 # The proportion of pixels in the original image that used a color from one of the high-ratio color pairs
-ggplot(metrics_data, aes(x = proportion_high_ratio_pixels)) +
-  geom_histogram() +
+ggplot(plot_data, aes(x = proportion_high_ratio_pixels)) +
+  geom_histogram(binwidth=0.005) +
   xlab("Proportion of pixels using high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
 
 # Mean Euclidean distance between pixels for high-ratio color pairs
-ggplot(metrics_data, aes(x = euclidean_distance_metric)) +
-  geom_histogram() +
+ggplot(plot_data, aes(x = euclidean_distance_metric)) +
+  geom_histogram(binwidth=10) +
   xlab("Mean distance between high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
@@ -79,30 +87,16 @@ ggplot(metrics_data, aes(x = euclidean_distance_metric)) +
 # Correlation between metrics
 ###############################################
 
-select(metrics_data, -article_id, -image_file_path, -is_rgb) %>%
+select(plot_data, -article_id, -image_file_path, -is_rgb, -combined_score) %>%
   cor(method = "spearman") %>%
   print()
 
 ###############################################
-# Use a ranking approach to combine metrics
-# into a single score
-###############################################
-
-# A lower rank signals a greater possibility of being unfriendly.
-
-metrics_data = mutate(metrics_data, combined_score =
-                        (rank(-max_ratio) +
-                        rank(-num_high_ratios) +
-                        rank(-proportion_high_ratio_pixels) +
-                        rank(-mean_delta) +
-                        rank(euclidean_distance_metric)) / 5)
-
-###############################################
-# Compare these metrics against the curated
+# Compare the metrics against the curated
 # labels.
 ###############################################
 
-curated_data = read_tsv("Image_Curation_1-5000 - 1-5000.tsv") %>%
+curated_data = read_tsv("Image_Curation_1-5000.tsv") %>%
   dplyr::rename(image_file_name = `Image Names`) %>%
   dplyr::rename(visually_detect = `visually detect problem colors (Shades of red, green, and orange)`) %>%
   dplyr::rename(contrasts_mitigate = `Contrasts mitigate problem`) %>%
@@ -149,5 +143,21 @@ anti_join(curated_data, metrics_data, by="image_file_name") %>%
 
 # Plot the columns as bar plots (?).
 
-# TODO:
-# Use a classification algorithm (instead of ranking) to see how well we can predict "colorblind friendly status" based on the curated results?
+###############################################
+# Use Random Forests classifier to see how well
+# we can predict "colorblind friendly status"
+# based on the curated results.
+###############################################
+
+# set.seed(33)
+# 
+# rf_recipe <- recipe(Species ~ ., data = iris)
+# rf_model <- rand_forest(trees = 100, mtry = 3, classwt = c(1, 1))
+# rf_workflow <- workflow() %>%
+#   add_recipe(rf_recipe) %>%
+#   add_model(rf_model)
+# rf_fit <- rf_workflow %>%
+#   fit(data = iris)
+# rf_auc <- rf_fit %>%
+#   predict(new_data = iris) %>%
+#   roc_auc(truth = Species, .pred_class)
