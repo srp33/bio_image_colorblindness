@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-CVD Machine Learning Version 0.0
-
-Model includes data augmentation, but not class weighing, transfer learning, or early stopping.
-"""
-
-"""
-Imports
-"""
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -18,16 +8,16 @@ import matplotlib.pyplot as plt
 
 os.listdir("TrainingDataset") #should return unfriendlyCVD and friendlyCVD
 
-image_size = (180, 180) #modify this, this might be too small to work. 
+seed = 123 #Random seed set for reproducibility.
+image_size = (180, 180) #Could make this bigger.
 batch_size = 32
-seed = 123 #Random seed set for reproducibility. 
-validation_split=0.20 
+validation_split=0.20
 
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
     "TrainingDataset/",
     validation_split=validation_split,
-    labels='inferred', 
-    label_mode='binary', 
+    labels='inferred',
+    label_mode='binary',
     subset="training",
     seed=seed,
     image_size=image_size,
@@ -38,7 +28,7 @@ val_ds = tf.keras.preprocessing.image_dataset_from_directory(
     "TrainingDataset/",
     validation_split=validation_split,
     labels='inferred',
-    label_mode='binary', 
+    label_mode='binary',
     subset="validation",
     seed=seed,
     image_size=image_size,
@@ -49,8 +39,6 @@ val_ds = tf.keras.preprocessing.image_dataset_from_directory(
 #     image_size=image_size,
 #     shuffle=False
 # )
-
-
 
 #Test to confirm it worked
 plt.figure(figsize=(10, 10))
@@ -132,4 +120,3 @@ model.compile(
 model.fit(
     train_ds, epochs=epochs, callbacks=callbacks, validation_data=val_ds,
 )
-

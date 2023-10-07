@@ -6,7 +6,7 @@ set -o errexit
 
 #Rscript 0_Show_Package_Versions.R
 #Rscript 1_Parse_Articles_from_XML.R
-#Rscript 2_Process_Images.R
+Rscript 2_Process_Images.R
 
 # I ran this before we had the most recent collection of images, so it is not fully reproducible.
 #Rscript 3A_Sample_Images.R 1000 "ImageSample1000" "ImageSample1000_Metrics.tsv" NULL
@@ -50,4 +50,11 @@ set -o errexit
 
 #Rscript 4_Analyze_Image_Metrics.R
 
-bash 5_Classify_Using_CNN/run.sh
+#mkdir -p TrainingImages/friendly TrainingImages/unfriendly
+#mkdir -p TestingImages/friendly TestingImages/unfriendly
+
+#python3 assign_training_testing.py
+
+#mkdir -p Images
+
+#bash 5_Classify_Using_CNN/run.sh
