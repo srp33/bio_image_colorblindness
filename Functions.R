@@ -122,8 +122,9 @@ get_euclidean_distances = function(hex_matrix, hex1, hex2) {
     }
   }
   
-  if (length(color1_positions) <= 3 | length(color2_positions) <= 3)
-    return(NA)
+#  if (length(color1_positions) <= 3 | length(color2_positions) <= 3) {
+#    return(NA)
+#  }
   
   parse_positions <- function(positions, row_indices, col_index) {
     positions[row_indices,col_index]
@@ -285,6 +286,7 @@ calculate_image_metrics = function(article_id, image_file_path, ratio_threshold)
       hex2 = str_split(hex_pair, "_")[[1]][2]
 
       distances = get_euclidean_distances(original_hex_matrix, hex1, hex2)
+
       # Get the smallest distances and then calculate a summary statistic
       distances = sort(distances)[1:ceiling(length(distances) * 0.1)]
       distance_metrics = c(distance_metrics, median(distances, na.rm=TRUE))
