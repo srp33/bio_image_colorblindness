@@ -48,6 +48,9 @@ set -o errexit
 #python3 3C_Find_Other_Corrupted_Images.py
 #NOTE: This didn't find any corrupted images.
 
+cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
+python3 3D_Mark_Duplicates.py
+
 #Rscript 4_Analyze_Image_Metrics.R
 
 #mkdir -p TrainingImages/friendly TrainingImages/unfriendly
