@@ -19,7 +19,7 @@ for key, value in image_dict.items():
     image_dict[key] = sorted(value)
 
 with open("/tmp/eLife_Metrics.tsv") as in_file:
-    with open("/tmp/eLife_Metrics2.tsv", "w") as out_file:
+    with open("eLife_Metrics.tsv", "w") as out_file:
         header_items = in_file.readline().split("\t")
         header_items.insert(2, "is_duplicate")
         out_file.write("\t".join(header_items))
