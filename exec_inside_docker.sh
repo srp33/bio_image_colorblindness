@@ -7,6 +7,8 @@ set -o errexit
 #Rscript 0_Show_Package_Versions.R
 #Rscript 1_Parse_Articles_from_XML.R
 Rscript 2_Process_Images.R
+#TODO: Add the duplicate images to the spreadsheet.
+#TODO: Check for duplicate images in Test set.
 
 # I ran this before we had the most recent collection of images, so it is not fully reproducible.
 #Rscript 3A_Sample_Images.R 1000 "ImageSample1000" "ImageSample1000_Metrics.tsv" NULL

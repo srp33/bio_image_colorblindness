@@ -1,124 +1,44 @@
-import numpy as np
-import tensorflow as tf
-from tensorflow import keras
-from keras import layers
-import glob
 import os
-import matplotlib.pyplot as plt
+import random
+folder = ""
+destinationFolder = ""
+imagePercent = 0.1
 
-os.listdir("TrainingDataset") #should return unfriendlyCVD and friendlyCVD
+def withholdTest(folder):
+    goodFolder = os.path.join(folder,"CVDfriendly")
+    badFolder = os.path.join(folder,"CVDunfriendly")
+    badCount=0
+    badList = []
+    goodCount = 0
+    goodList = []
 
-seed = 123 #Random seed set for reproducibility.
-image_size = (180, 180) #Could make this bigger.
-batch_size = 32
-validation_split=0.20
+    for file in os.walk(badFolder):
+        badCount+=1
+        badList.append(str(file))
 
-train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    "TrainingDataset/",
-    validation_split=validation_split,
-    labels='inferred',
-    label_mode='binary',
-    subset="training",
-    seed=seed,
-    image_size=image_size,
-    batch_size=batch_size,
-)
+    for file in os.walk(goodFolder):
+        goodCount+=1
+        goodList.append(str(file))
 
-val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-    "TrainingDataset/",
-    validation_split=validation_split,
-    labels='inferred',
-    label_mode='binary',
-    subset="validation",
-    seed=seed,
-    image_size=image_size,
-    batch_size=batch_size,
-)
 
-# test_ds = tf.keras.preprocessing.image_dataset_from_directory(
-#     "TestImages/",
-#     image_size=image_size,
-#     shuffle=False
-# )
+    totalCount = badCount+goodCount
 
-#Test to confirm it worked
-plt.figure(figsize=(10, 10))
-for images, labels in train_ds.take(1):
-    for i in range(9):
-        ax = plt.subplot(3, 3, i + 1)
-        plt.imshow(images[i].numpy().astype("uint8"))
-        plt.title(int(labels[i]))
-        plt.axis("off") #1 is notFriendly #0 is friendly
-        #plt.savefig("TestImage")
+    amountGood = int(goodCount/totalCount * (totalCount*imagePercent))
+    amountBad = int(badCount/totalCount * (totalCount*imagePercent))
 
-data_augmentation = keras.Sequential(
-    [
-        layers.RandomFlip("horizontal"),
-        layers.RandomRotation(0.1),
-    ]
-)
+    goodFilesToMove = [goodList.pop(random.randrange(0, len(goodCount))) for _ in range(amountGood)]
 
-def make_model(input_shape, num_classes):
-    inputs = keras.Input(shape=input_shape)
+    for file in goodFilesToMove:
+        src = os.path.join(goodFolder, file)
+        dst = os.path.join(destinationFolder,"CVDfriendly")
+        shutil.move(src, dst)
 
-    x = data_augmentation(inputs)
-    x = layers.Rescaling(1./255)(x)
+    badFilesToMove = [goodList.pop(random.randrange(0, len(badCount)))
 
-    # Entry block
-    x = layers.Conv2D(32, 3, strides=2, padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation("relu")(x)
+for _ in range(amountBad)]
+    for file in badFilesToMove:
+        src = os.path.join(badFolder, file)
+        dst = os.path.join(destinationFolder,"CVDunfriendly")
+        shutil.move(src, dst)
 
-    x = layers.Conv2D(64, 3, padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation("relu")(x)
-
-    previous_block_activation = x  # Set aside residual
-
-    for size in [128, 256, 512, 728]:
-        x = layers.Activation("relu")(x)
-        x = layers.SeparableConv2D(size, 3, padding="same")(x)
-        x = layers.BatchNormalization()(x)
-
-        x = layers.Activation("relu")(x)
-        x = layers.SeparableConv2D(size, 3, padding="same")(x)
-        x = layers.BatchNormalization()(x)
-
-        x = layers.MaxPooling2D(3, strides=2, padding="same")(x)
-
-        # Project residual
-        residual = layers.Conv2D(size, 1, strides=2, padding="same")(
-            previous_block_activation
-        )
-        x = layers.add([x, residual])  # Add back residual
-        previous_block_activation = x  # Set aside next residual
-
-    x = layers.SeparableConv2D(1024, 3, padding="same")(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Activation("relu")(x)
-
-    x = layers.GlobalAveragePooling2D()(x)
-    x = layers.Dropout(0.3)(x) #Reduce overfitting
-
-    outputs = layers.Dense(1, activation="sigmoid")(x)
-
-    return keras.Model(inputs, outputs)
-
-model = make_model(input_shape=image_size + (3,) , num_classes=2)
-model.summary()
-
-epochs = 15 #Run 15 epochs
-
-callbacks = [
-    keras.callbacks.ModelCheckpoint("SavesModel0/save_at_{epoch}.h5"),
-]
-
-model.compile(
-    optimizer=keras.optimizers.Adam(1e-3),
-    loss="binary_crossentropy",
-    metrics=["accuracy"],
-)
-
-model.fit(
-    train_ds, epochs=epochs, callbacks=callbacks, validation_data=val_ds,
-)
+withholdTest(folder)
