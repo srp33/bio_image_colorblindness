@@ -6,7 +6,7 @@ set -o errexit
 
 #Rscript 0_Show_Package_Versions.R
 #Rscript 1_Parse_Articles_from_XML.R
-Rscript 2_Process_Images.R
+#Rscript 2_Process_Images.R
 
 # I ran this before we had the most recent collection of images, so it is not fully reproducible.
 #Rscript 3A_Sample_Images.R 1000 "ImageSample1000" "ImageSample1000_Metrics.tsv" NULL
@@ -41,7 +41,6 @@ Rscript 2_Process_Images.R
 #wget -O ImageSample1to5000/elife-14320-fig2-v1/original_downloaded.jpg https://iiif.elifesciences.org/lax/14320%2Felife-14320-fig2-v1.tif/full/1500,/0/default.jpg
 #wget -O ImageSample1to5000/elife-26163-fig4-v2/original_downloaded.jpg https://iiif.elifesciences.org/lax/26163%2Felife-26163-fig4-v2.tif/full/,1500/0/default.jpg
 #wget -O ImageSample1to5000/elife-26376-fig3-v2/original_downloaded.jpg https://iiif.elifesciences.org/lax/26376%2Felife-26376-fig3-v2.tif/full/,1500/0/default.jpg
-#27038-fig5-v2
 #wget -O ImageSample1to5000/elife-64041-fig6-v2/original_downloaded.jpg https://iiif.elifesciences.org/lax/64041%2Felife-64041-sa2-fig1-v2.tif/full/full/0/default.jpg
 
 #Rscript 3B_Process_Corrupted_Images.R
@@ -49,8 +48,8 @@ Rscript 2_Process_Images.R
 #python3 3C_Find_Other_Corrupted_Images.py
 #NOTE: This didn't find any corrupted images.
 
-#cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
-#python3 3D_Mark_Duplicates.py
+cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
+python3 3D_Mark_Duplicates.py
 
 #mkdir -p TrainingImages/friendly TrainingImages/unfriendly
 #mkdir -p TestingImages/friendly TestingImages/unfriendly
