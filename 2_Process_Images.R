@@ -10,7 +10,6 @@ library(spacesXYZ)
 library(stringr)
 library(tibble)
 
-
 # This file is created by 1_Parse_Articles_from_XML.R.
 articles_filepath = "all_eLife_articles.tsv"
 
