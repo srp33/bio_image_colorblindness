@@ -24,7 +24,7 @@ set -o errexit
 #wget -O Images/26376/elife-26376-fig3-v2.jpg https://iiif.elifesciences.org/lax/26376%2Felife-26376-fig3-v2.tif/full/,1500/0/default.jpg
 #wget -O Images/64041/elife-64041-fig6-v2.jpg https://iiif.elifesciences.org/lax/64041%2Felife-64041-sa2-fig1-v2.tif/full/full/0/default.jpg
 
-Rscript 2_Process_Images.R
+#Rscript 2_Process_Images.R
 
 # I ran this before we had the most recent collection of images, so it is not fully reproducible.
 #Rscript 3A_Sample_Images.R 1000 "ImageSample1000" "ImageSample1000_Metrics.tsv" NULL
@@ -59,8 +59,8 @@ Rscript 2_Process_Images.R
 #python3 3C_Find_Other_Corrupted_Images.py
 #NOTE: This didn't find any corrupted images.
 
-#cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
-#python3 3D_Mark_Duplicates.py
+cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
+python3 3D_Mark_Duplicates.py
 
 #mkdir -p TrainingImages/friendly TrainingImages/unfriendly
 #mkdir -p TestingImages/friendly TestingImages/unfriendly
