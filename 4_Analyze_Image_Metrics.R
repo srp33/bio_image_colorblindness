@@ -32,10 +32,10 @@ print("Num grayscale:")
 print(x$Count[1]) #1,744
 
 print("Num RGB:")
-print(x$Count[2]) #64,510
+print(x$Count[2]) #64,509
 
 print("Num total:")
-print(sum(x$Count)) #66,254
+print(sum(x$Count)) #66,253
 
 print("Percentage grayscale:")
 print(100 * x$Count[1] / sum(x$Count)) #2.63%
@@ -133,7 +133,7 @@ pull(curated_data, conclusion) %>%
   table() %>%
   print()
 # Definitely okay 
-#   3874
+#   3873
 # Probably okay 
 #   210
 # Probably problematic 
@@ -159,6 +159,7 @@ classification_data = inner_join(metrics_data, curated_data, by="image_file_name
   mutate(Class = as.character(conclusion)) %>%
   filter(Class %in% c("Definitely okay", "Definitely problematic")) %>%
   mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay"))) %>%
+  filter(!is.na(euclidean_distance_metric)) %>%
   select(max_ratio, num_high_ratios, proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric, combined_score, Class)
 
 alpha = 0.05
@@ -227,24 +228,12 @@ auc_data = classification_data %>%
   mutate(euclidean_distance_metric_scaled = min_max_scale(euclidean_distance_metric, inverse=TRUE)) %>%
   mutate(combined_score_scaled = min_max_scale(combined_score, inverse=TRUE))
 
-# TODO: Update these scores after receiving updating curation labels.
-roc_auc(auc_data, Class, max_ratio_scaled) # 0.633
-roc_auc(auc_data, Class, num_high_ratios_scaled) # 0.750
+roc_auc(auc_data, Class, max_ratio_scaled) # 0.632
+roc_auc(auc_data, Class, num_high_ratios_scaled) # 0.749
 roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled) # 0.735
 roc_auc(auc_data, Class, mean_delta_scaled) # 0.444
 roc_auc(auc_data, Class, euclidean_distance_metric_scaled) # 0.673
-roc_auc(auc_data, Class, combined_score_scaled) # 0.711
+roc_auc(auc_data, Class, combined_score_scaled) # 0.710
 
-classification_data = select(classification_data, -combined_score)
-
-#https://codebuddy.byu.edu/edit_exercise/20/807/6015
-rf_recipe <- recipe(Class ~ ., data = classification_data)
-# rf_model <- rand_forest(trees = 100, mtry = 3, classwt = c(1, 1))
-# rf_workflow <- workflow() %>%
-#   add_recipe(rf_recipe) %>%
-#   add_model(rf_model)
-# rf_fit <- rf_workflow %>%
-#   fit(data = iris)
-# rf_auc <- rf_fit %>%
-#   predict(new_data = iris) %>%
-#   roc_auc(truth = Species, .pred_class)
+select(classification_data, -combined_score) %>%
+  write_tsv("Image_Metrics_Classification_Data.tsv")
