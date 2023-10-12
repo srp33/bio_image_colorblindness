@@ -4965,3 +4965,10 @@ elife-77672-fig7-v1	FALSE				Definitely okay
 elife-78182-fig3-v2	TRUE	Y	N	N	Definitely okay	
 elife-78428-fig2-v1	TRUE	Y	NA	Y	Definitely okay	
 elife-78793-fig7-v2	TRUE	N	N	N	Definitely problematic	
+elife-00640-fig6-v1	FALSE				Gray-scale	The original image from the AWS repository was corrupted, so we downloaded it from the website.
+elife-12717-fig5-v2	TRUE	N	N	N	Definitely problematic	The original image from the AWS repository was corrupted, so we downloaded it from the website.
+elife-14320-fig2-v1	TRUE	Y	Y	N	Definitely okay	The original image from the AWS repository was corrupted, so we downloaded it from the website. This image has a heatmap, but it is well labeled.
+elife-26163-fig4-v2	TRUE	N	Y	N	Probably problematic	The original image from the AWS repository was corrupted, so we downloaded it from the website. This image has a blue-yellow colorscale, but it goes through green. The green and yellow shades are hard to distinguish, but the heatmap label does help.
+elife-26376-fig3-v2	TRUE	N	Y	N	Probably problematic	The original image from the AWS repository was corrupted, so we downloaded it from the website. This figure has red and a green cell images, and they are overlapping. However, the red and green generally are not in the same place and when they are, there are usually labels.
+elife-27038-fig5-v2	TRUE	Y	Y	N	Definitely okay	We thought the original image from the AWS repository was corrupted, but it appears to be okay. The image has a heatmap with enough contrast, so the image is easily understood.
+elife-64041-fig6-v2	TRUE	Y	N	Y	Definitely okay	The original image from the AWS repository was corrupted, so we downloaded it from the website.
