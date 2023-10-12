@@ -32,10 +32,10 @@ print("Num grayscale:")
 print(x$Count[1]) #1,744
 
 print("Num RGB:")
-print(x$Count[2]) #64,509
+print(x$Count[2]) #64,510
 
 print("Num total:")
-print(sum(x$Count)) #66,253
+print(sum(x$Count)) #66,254
 
 print("Percentage grayscale:")
 print(100 * x$Count[1] / sum(x$Count)) #2.63%
@@ -133,15 +133,15 @@ pull(curated_data, conclusion) %>%
   table() %>%
   print()
 # Definitely okay 
-#   3871 
+#   3874
 # Probably okay 
-#   210 
+#   210
 # Probably problematic 
-#   72 
+#   74
 # Definitely problematic 
-#   635 
+#   636 
 # Gray-scale 
-#   178
+#   179
 
 metrics_data = mutate(metrics_data, image_file_name = basename(image_file_path)) %>%
   mutate(image_file_name = str_replace(image_file_name, "\\.jpg$", "")) %>%
@@ -235,12 +235,10 @@ roc_auc(auc_data, Class, mean_delta_scaled) # 0.444
 roc_auc(auc_data, Class, euclidean_distance_metric_scaled) # 0.673
 roc_auc(auc_data, Class, combined_score_scaled) # 0.711
 
-
-
-#classification_data = select(classification_data, -combined_score)
+classification_data = select(classification_data, -combined_score)
 
 #https://codebuddy.byu.edu/edit_exercise/20/807/6015
-# rf_recipe <- recipe(Class ~ ., data = classification_data)
+rf_recipe <- recipe(Class ~ ., data = classification_data)
 # rf_model <- rand_forest(trees = 100, mtry = 3, classwt = c(1, 1))
 # rf_workflow <- workflow() %>%
 #   add_recipe(rf_recipe) %>%
