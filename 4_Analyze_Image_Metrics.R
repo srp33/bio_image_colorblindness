@@ -3,7 +3,8 @@ library(tidymodels)
 library(randomForest)
 library(yardstick)
 
-metrics_data = read_tsv("eLife_Metrics.tsv")
+metrics_data = read_tsv("eLife_Metrics.tsv") %>%
+  filter(!is_duplicate)
 
 ###############################################
 # Use a ranking approach to combine the metrics
@@ -28,19 +29,19 @@ x = group_by(metrics_data, is_rgb) %>%
   arrange(is_rgb)
 
 print("Num grayscale:")
-print(x$Count[1]) #1898
+print(x$Count[1]) #1,744
 
 print("Num RGB:")
-print(x$Count[2]) #63867
+print(x$Count[2]) #64,509
 
 print("Num total:")
-print(sum(x$Count)) #65765
+print(sum(x$Count)) #66,253
 
 print("Percentage grayscale:")
-print(100 * x$Count[1] / sum(x$Count)) #2.89%
+print(100 * x$Count[1] / sum(x$Count)) #2.63%
 
 print("Percentage RGB:")
-print(100 * x$Count[2] / sum(x$Count)) #97.11%
+print(100 * x$Count[2] / sum(x$Count)) #97.37%
 
 ###############################################
 # Plot metrics for RGB images
@@ -87,8 +88,8 @@ ggplot(plot_data, aes(x = euclidean_distance_metric)) +
 # Correlation between metrics
 ###############################################
 
-select(plot_data, -article_id, -image_file_path, -is_rgb, -combined_score) %>%
-  cor(method = "spearman") %>%
+select(plot_data, -article_id, -image_file_path, -is_rgb, -is_duplicate, -combined_score) %>%
+  cor(method = "spearman", use="pairwise.complete.obs") %>%
   print()
 
 ###############################################
@@ -104,6 +105,7 @@ curated_data = read_tsv("Image_Curation_1-5000.tsv") %>%
   dplyr::rename(distance_mitigates = `Distance mitigates problem`) %>%
   dplyr::rename(conclusion = `Conclusion (5 types listed in drop down)`) %>%
   mutate(image_file_name = str_replace(image_file_name, "\\.jpg$", "")) %>%
+  mutate(image_file_name = str_replace(image_file_name, "\\-v\\d$", "")) %>%
   mutate(contrasts_mitigate = contrasts_mitigate == "Y") %>%
   mutate(labels_mitigate = labels_mitigate == "Y") %>%
   mutate(distance_mitigates = distance_mitigates == "Y") %>%
@@ -130,18 +132,20 @@ pull(curated_data, distance_mitigates) %>%
 pull(curated_data, conclusion) %>%
   table() %>%
   print()
+# Definitely okay 
+#   3871 
+# Probably okay 
+#   210 
+# Probably problematic 
+#   72 
+# Definitely problematic 
+#   635 
+# Gray-scale 
+#   178
 
 metrics_data = mutate(metrics_data, image_file_name = basename(image_file_path)) %>%
-  mutate(image_file_name = str_replace(image_file_name, "\\.jpg$", ""))
-
-anti_join(curated_data, metrics_data, by="image_file_name") %>%
-  View()
-
-# curated_data = mutate(metrics_data, image_file_name = basename(image_file_path)) %>%
-  # inner_join(curated_data, by="image_file_name")
-
-
-# Plot the columns as bar plots (?).
+  mutate(image_file_name = str_replace(image_file_name, "\\.jpg$", "")) %>%
+  mutate(image_file_name = str_replace(image_file_name, "\\-v\\d$", ""))
 
 ###############################################
 # Use Random Forests classifier to see how well
@@ -149,9 +153,94 @@ anti_join(curated_data, metrics_data, by="image_file_name") %>%
 # based on the curated results.
 ###############################################
 
-# set.seed(33)
-# 
-# rf_recipe <- recipe(Species ~ ., data = iris)
+set.seed(33)
+
+classification_data = inner_join(metrics_data, curated_data, by="image_file_name") %>%
+  mutate(Class = as.character(conclusion)) %>%
+  filter(Class %in% c("Definitely okay", "Definitely problematic")) %>%
+  mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay"))) %>%
+  select(max_ratio, num_high_ratios, proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric, combined_score, Class)
+
+alpha = 0.05
+size = 0.7
+color = "red"
+base_size = 18
+
+ggplot(classification_data, aes(x = Class, y = log2(max_ratio))) +
+  geom_boxplot() +
+  geom_jitter(alpha = alpha, size=size, color = color) +
+  theme_bw(base_size = base_size) +
+  xlab("") +
+  ylab("Max color-distance ratio (log2 scale)")
+
+ggplot(classification_data, aes(x = Class, y = log(num_high_ratios))) +
+  geom_boxplot() +
+  geom_jitter(alpha = alpha, size=size, color = color) +
+  theme_bw() +
+  xlab("") +
+  ylab("Number of high-ratio color pairs (log2 scale)")
+
+ggplot(classification_data, aes(x = Class, y = proportion_high_ratio_pixels)) +
+  geom_boxplot() +
+  geom_jitter(alpha = alpha, size=size, color = color) +
+  theme_bw() +
+  xlab("") +
+  ylab("Proportion of high-ratio pixels")
+
+ggplot(classification_data, aes(x = Class, y = mean_delta)) +
+  geom_boxplot() +
+  geom_jitter(alpha = alpha, size=size, color = color) +
+  theme_bw() +
+  xlab("") +
+  ylab("Mean, pixel-wise color distance between original and simulated image")
+
+ggplot(classification_data, aes(x = Class, y = euclidean_distance_metric)) +
+  geom_boxplot() +
+  geom_jitter(alpha = alpha, size=size, color = color) +
+  theme_bw() +
+  xlab("") +
+  ylab("Mean Euclidean distance between pixels for high-ratio color pairs")
+
+ggplot(classification_data, aes(x = Class, y = combined_score)) +
+  geom_boxplot() +
+  geom_jitter(alpha = alpha, size=size, color = color) +
+  theme_bw() +
+  xlab("") +
+  ylab("Combined rank score")
+
+# Calculate AUROC for each of these scores.
+
+min_max_scale = function(x, inverse=FALSE) {
+  y = (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+  
+  if (inverse)
+    y = 1 - y
+  
+  y
+}
+
+auc_data = classification_data %>%
+  mutate(max_ratio_scaled = min_max_scale(max_ratio)) %>%
+  mutate(num_high_ratios_scaled = min_max_scale(num_high_ratios)) %>%
+  mutate(proportion_high_ratio_pixels_scaled = min_max_scale(proportion_high_ratio_pixels)) %>%
+  mutate(mean_delta_scaled = min_max_scale(mean_delta)) %>%
+  mutate(euclidean_distance_metric_scaled = min_max_scale(euclidean_distance_metric, inverse=TRUE)) %>%
+  mutate(combined_score_scaled = min_max_scale(combined_score, inverse=TRUE))
+
+# TODO: Update these scores after receiving updating curation labels.
+roc_auc(auc_data, Class, max_ratio_scaled) # 0.633
+roc_auc(auc_data, Class, num_high_ratios_scaled) # 0.750
+roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled) # 0.735
+roc_auc(auc_data, Class, mean_delta_scaled) # 0.444
+roc_auc(auc_data, Class, euclidean_distance_metric_scaled) # 0.673
+roc_auc(auc_data, Class, combined_score_scaled) # 0.711
+
+
+
+#classification_data = select(classification_data, -combined_score)
+
+#https://codebuddy.byu.edu/edit_exercise/20/807/6015
+# rf_recipe <- recipe(Class ~ ., data = classification_data)
 # rf_model <- rand_forest(trees = 100, mtry = 3, classwt = c(1, 1))
 # rf_workflow <- workflow() %>%
 #   add_recipe(rf_recipe) %>%
