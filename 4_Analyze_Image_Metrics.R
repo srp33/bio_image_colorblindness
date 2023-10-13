@@ -160,7 +160,7 @@ classification_data = inner_join(metrics_data, curated_data, by="image_file_name
   filter(Class %in% c("Definitely okay", "Definitely problematic")) %>%
   mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay"))) %>%
   filter(!is.na(euclidean_distance_metric)) %>%
-  select(max_ratio, num_high_ratios, proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric, combined_score, Class)
+  select(image_file_path, max_ratio, num_high_ratios, proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric, combined_score, Class)
 
 alpha = 0.05
 size = 0.7
@@ -236,4 +236,5 @@ roc_auc(auc_data, Class, euclidean_distance_metric_scaled) # 0.673
 roc_auc(auc_data, Class, combined_score_scaled) # 0.710
 
 select(classification_data, -combined_score) %>%
+  mutate(Class = as.integer(Class) - 1) %>%
   write_tsv("Image_Metrics_Classification_Data.tsv")
