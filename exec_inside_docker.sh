@@ -66,5 +66,7 @@ set -o errexit
 #python3 5_Assign_Cross_Validation_Folds.py
 #python3 6_Classify_Using_Metrics.py
 
-#TODO: Remove this run.sh script and put the commands here.
-#bash 7_Classify_Using_CNN/run.sh
+python3 7_Classify_Using_CNN/main.py
+#python3 Move_Images_to_Folders.py
+
+#plot_functions.py
