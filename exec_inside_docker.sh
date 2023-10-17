@@ -59,16 +59,14 @@ set -o errexit
 #python3 3C_Find_Other_Corrupted_Images.py
 #NOTE: This didn't find any corrupted images.
 
-cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
-python3 3D_Mark_Duplicates.py
-
-#mkdir -p TrainingImages/friendly TrainingImages/unfriendly
-#mkdir -p TestingImages/friendly TestingImages/unfriendly
-#python3 3E_Assign_Images.py
-#TODO: Re-do this after adding the missing 7 images.
+#cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
+#python3 3D_Mark_Duplicates.py
 
 #Rscript 4_Analyze_Image_Metrics.R
+#python3 5_Assign_Cross_Validation_Folds.py
+#python3 6_Classify_Using_Metrics.py
 
-#mkdir -p Images
+python3 7_Classify_Using_CNN/main.py
+#python3 Move_Images_to_Folders.py
 
-#bash 5_Classify_Using_CNN/run.sh
+#plot_functions.py
