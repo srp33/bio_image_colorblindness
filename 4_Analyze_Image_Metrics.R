@@ -235,6 +235,7 @@ roc_auc(auc_data, Class, mean_delta_scaled) # 0.444
 roc_auc(auc_data, Class, euclidean_distance_metric_scaled) # 0.673
 roc_auc(auc_data, Class, combined_score_scaled) # 0.710
 
-select(classification_data, -combined_score) %>%
-  mutate(Class = as.integer(Class) - 1) %>%
-  write_tsv("Image_Metrics_Classification_Data.tsv")
+classification_data = select(classification_data, -combined_score) %>%
+  mutate(Class = as.integer(Class) - 1)
+
+write_tsv(classification_data, "Image_Metrics_Classification_Data.tsv")
