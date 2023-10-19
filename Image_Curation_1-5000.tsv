@@ -388,7 +388,6 @@ elife-26129-fig4-v3.jpg	TRUE	Y	Y	Y	Definitely okay
 elife-26231-fig3-v2.jpg	TRUE	Y	Y	Y	Definitely okay	
 elife-26338-fig6-v2.jpg	FALSE				Gray-scale	
 elife-26377-fig2-v3.jpg	TRUE	Y	N	N	Definitely okay	High contrast mitigates lack of labels and distance
-elife-26404-fig4-v2.jpg	FALSE				Definitely okay	
 elife-26410-fig2-v2.jpg	FALSE				Definitely okay	
 elife-26524-fig4-v2.jpg	FALSE				Definitely okay	
 elife-26556-fig2-v1.jpg	FALSE				Definitely okay	
@@ -2509,7 +2508,6 @@ elife-32073-fig3-v1	FALSE				Definitely okay
 elife-32077-fig7-v2	TRUE	Y	N	Y	Definitely okay	
 elife-32111-fig5-v1	FALSE				Definitely okay	
 elife-32143-fig5-v2	FALSE				Definitely okay	
-elife-32167-fig1-v3	FALSE				Definitely okay	
 elife-32167-fig3-v2	TRUE	Y	Y	Y	Definitely okay	
 elife-32167-fig8-v3	TRUE	Y	N	N	Definitely okay	
 elife-32167-fig9-v3	FALSE				Definitely okay	
