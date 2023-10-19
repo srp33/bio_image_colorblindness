@@ -133,7 +133,7 @@ pull(curated_data, conclusion) %>%
   table() %>%
   print()
 # Definitely okay 
-#   3866
+#   3865
 # Probably okay 
 #   210
 # Probably problematic 
