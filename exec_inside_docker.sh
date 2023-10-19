@@ -66,7 +66,7 @@ set -o errexit
 #python3 5_Assign_Cross_Validation_Folds.py
 #python3 6_Classify_Using_Metrics.py
 
+mkdir -p CNN_Models
 python3 7_Classify_Using_CNN/main.py
-#python3 Move_Images_to_Folders.py
 
 #plot_functions.py

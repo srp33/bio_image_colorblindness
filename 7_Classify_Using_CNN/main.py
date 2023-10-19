@@ -119,15 +119,15 @@ def run_model(model_function = make_model_mobile_net2,
               dropout=0.3,
               epoch_count=30,
               transfer_learning=False,
-              transfer_learning_model ="",
-              fine_tuning = False):
+              transfer_learning_model="",
+              fine_tuning=False):
 
-    image_size = (image_size, image_size) #Changed from (224,224)
+    image_size = (image_size, image_size)
     batch_size = 32
     validation_split = 0.20
 
     train_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        "TrainingDataset/",
+        "TrainingImages/",
         validation_split=validation_split,
         labels='inferred',
         label_mode='binary',
@@ -137,44 +137,45 @@ def run_model(model_function = make_model_mobile_net2,
         batch_size=batch_size,
     )
 
-    #Take 20% of train_ds and withhold as validation through the testing.
     val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        "TrainingDataset/",
+        "TrainingImages/",
         validation_split=validation_split,
         labels='inferred',
         label_mode='binary',
         subset="validation",
-        seed=seed,
+        seed=random_seed,
         image_size=image_size,
         batch_size=batch_size,
     )
 
     test_ds = tf.keras.preprocessing.image_dataset_from_directory(
-        "TestImages/",
+        "TestingImages/",
         image_size=image_size,
         shuffle=False
     )
 
-    #Return labels from our test_ds. Used later.
+    # Retrieve labels from our test_ds. Used later.
     test_labels = np.concatenate([y for x, y in test_ds], axis=0)
 
-    initial_bias = None #This will be set to 1 or the class_weight
+    initial_bias = None # This will be set to 1 or the class_weight
 
     if include_class_weighting:
-        #Apply a weight
+        # Apply weights
         class_weight = {0:0, 1:0}
         y = np.concatenate([y for x, y in train_ds], axis=0)
         total = 0
+
         for i in y:
             if int(i[0]) in class_weight:
                 class_weight[int(i[0])]+=1
                 total+=1
             else:
                 print("Error:", i)
-        #Sets intial_bias to be used while training the model. Decreases loss during the first few epochs.
+
+        # Sets intial_bias to be used while training the model. Decreases loss during the first few epochs.
         initial_bias = np.log([class_weight[1]/class_weight[0]])
         print("Initial Bias: ", initial_bias)
-        #Sets class weights. 0 = Friendly. 1 = Unfriendly. We have unbalanced classes, so this is needed to give more accurate results.
+        # Sets class weights. 0 = Friendly. 1 = Unfriendly. We have unbalanced classes, so this is needed to give more accurate results.
         class_weight[0]=(1/class_weight[0])*(total/2)
         class_weight[1]=(1/class_weight[1])*(total/2)
     else:
@@ -208,13 +209,13 @@ def run_model(model_function = make_model_mobile_net2,
 
     model = model_function(input_shape=image_size+ (3,), output_bias=initial_bias, data_augmentation=data_augmentation, base_model=base_model, dropout=dropout)
 
-    model.summary() #Print a summary of the model onto the command line.
+    model.summary() # Print a summary of the model onto the command line.
 
     if early_stopping:
         callbacks = [
             keras.callbacks.ModelCheckpoint(os.path.join(output_folder,"save_at_{epoch}.h5")),
             keras.callbacks.EarlyStopping(
-            monitor='val_auc', #Stops when validation AUC is the highest.
+            monitor='val_auc', # Stops when validation AUC is the highest.
             verbose=1,
             patience=10,
             mode='max',
@@ -234,7 +235,7 @@ def run_model(model_function = make_model_mobile_net2,
         keras.metrics.Precision(name='precision'),
         keras.metrics.Recall(name='recall'),
         keras.metrics.AUC(name='auc'),
-        keras.metrics.AUC(name='prc', curve='PR'), # precision-recall curve
+        keras.metrics.AUC(name='prc', curve='PR'), # Precision-recall curve
     ]
 
     model.compile(
@@ -243,7 +244,7 @@ def run_model(model_function = make_model_mobile_net2,
         metrics=METRICS,
     )
 
-#Call the model. Use defined class weights to improve accuracy.
+    # Fit the model. Use defined class weights to improve accuracy.
     if include_class_weighting:
         history = model.fit(
             train_ds,
@@ -264,19 +265,18 @@ def run_model(model_function = make_model_mobile_net2,
     print(history.history.keys())
 
     historyDf = pd.DataFrame.from_dict(history.history)
-    historyDf.to_csv(os.path.join(output_folder,"History.tsv"), sep="\t")
+    historyDf.to_csv(os.path.join(output_folder, "history_epochs.tsv"), sep="\t")
 
-    with open(os.path.join(output_folder,"Evaluated"), "w") as file:
+    with open(os.path.join(output_folder, "metrics.tsv"), "w") as file:
         results = model.evaluate(test_ds)
         for name, value in zip(model.metrics_names, results):
             file.write(str(name)+': '+str(value)+"\n")
-
 
     model.save(os.path.join(output_folder, "model.h5"))
 
     predictions = model.predict(test_ds)
 
-    with open(os.path.join(output_folder, "predictions.tsv"),"w") as output:
+    with open(os.path.join(output_folder, "predictions.tsv"), "w") as output:
         for i in range(len(predictions)):
             if test_labels[i]==1:
                 output.write(f"Unfriendly\t{float(predictions[i])}\n")
@@ -284,10 +284,10 @@ def run_model(model_function = make_model_mobile_net2,
                 output.write(f"Friendly\t{float(predictions[i])}\n")
 
     if fine_tuning and transfer_learning:
-        #Fine tune the model by setting the base_model as trainable.
+        # Fine tune the model by setting the base_model as trainable.
         base_model.trainable = True
 
-        #Lower the learning rate significantly since the base model is far bigger than our model.
+        # Lower the learning rate significantly since the base model is far bigger than our model.
         model.compile(optimizer=keras.optimizers.Adam(1e-5),
                     loss="binary_crossentropy",
                     metrics=METRICS)
@@ -320,7 +320,7 @@ def run_model(model_function = make_model_mobile_net2,
         historyDf1 = pd.DataFrame.from_dict(history1.history)
         historyDf1.to_csv(os.path.join(output_folder,"History_FineTuning.tsv"), sep="\t")
 
-        #Freeze all layers of our model so that we can save it.
+        # Freeze all layers of our model so that we can save it.
         base_model.trainable = False
 
         model_freezed = freeze_layers(model)
@@ -340,32 +340,31 @@ def run_model(model_function = make_model_mobile_net2,
                     output.write(f"Unfriendly\t{float(predictions_finetuned[i])}\n")
                 else:
                     output.write(f"Friendly\t{float(predictions_finetuned[i])}\n")
-
     else:
-        print("No finetuning performed.")
+        print("No fine-tuning performed.")
 
 def copy_images_to_directory(file_paths, destination_directory):
     # Create the destination directory if it does not exist
-    if not os.path.exists(destination_directory):
-        os.makedirs(destination_directory)
-    else:
-        # Clear the destination directory if it already exists
-        for filename in os.listdir(destination_directory):
-            file_path = os.path.join(destination_directory, filename)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except Exception as e:
-                print(f"Failed to delete {file_path}. Reason: {e}")
+    os.makedirs(destination_directory, exist_ok = True)
+
+    # Clear the destination directory if it already exists
+    for file_path in glob.glob(f"{destination_directory}/*"):
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
 
     # Copy the files to the destination directory
+    count = 0
     for file_path in file_paths:
         shutil.copy(file_path, destination_directory)
+        #if not os.path.exists(f"{destination_directory}/{os.path.basename(file_path)}"):
+        if os.path.exists(f"{destination_directory}/{os.path.basename(file_path)}"):
+            count += 1
 
+    print(f"{count} images in {destination_directory}")
 
 random_seed = 123
-seed(random_seed) #Set random seed with numpy
-tf.random.set_seed(random_seed) #Set random seed with tensorflow
+seed(random_seed) #Set random seed for numpy
+tf.random.set_seed(random_seed) #Set random seed for tensorflow
 
 out_file_path = "Cross_Validation_Results_CNN.tsv"
 
@@ -378,14 +377,65 @@ with open(out_file_path, "w") as out_file:
         for fold in sorted(set(assignments_df["fold"])):
             print(iteration, fold)
 
-            training_image_file_paths = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "training")]["image_file_path"].tolist()
-            testing_image_file_paths = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "testing")]["image_file_path"].tolist()
+            training_image_df = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "training")]
+            testing_image_df = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "testing")]
 
-            #TODO: Need to save data for the two classes to separate subdirectories.
-            #copy_images_to_directory(training_image_file_paths, "TrainingImages")
-            #copy_images_to_directory(testing_image_file_paths, "TestingImages")
-            import sys
-            sys.exit(1)
+            training_image_file_paths_unfriendly = []
+            training_image_file_paths_friendly = []
+
+            for index, row in training_image_df.iterrows():
+                if row["Class"] == 0:
+                    training_image_file_paths_unfriendly.append(row["image_file_path"])
+                else:
+                    training_image_file_paths_friendly.append(row["image_file_path"])
+
+            testing_image_file_paths_unfriendly = []
+            testing_image_file_paths_friendly = []
+
+            for index, row in testing_image_df.iterrows():
+                if row["Class"] == 0:
+                    testing_image_file_paths_unfriendly.append(row["image_file_path"])
+                else:
+                    testing_image_file_paths_friendly.append(row["image_file_path"])
+
+            copy_images_to_directory(training_image_file_paths_friendly, "TrainingImages/friendly")
+            copy_images_to_directory(training_image_file_paths_unfriendly, "TrainingImages/unfriendly")
+            copy_images_to_directory(testing_image_file_paths_friendly, "TestingImages/friendly")
+            copy_images_to_directory(testing_image_file_paths_unfriendly, "TestingImages/unfriendly")
+
+            #TODO: Modify the output_folder to take into account fold, iteration
+            #TODO: Do we need to save the model after each epoch?
+            #TODO: Update the code for predictions.tsv to save image_file_path and class labels.
+            model_0 = {
+                'model_function': make_model,
+                'output_folder': "CNN_Models/0",
+                'image_size': 180,
+                'include_class_weighting': False,
+                'early_stopping': False,
+                'random_rotation': 0.2,
+                'dropout': 0.3,
+                'epoch_count': 3,
+                'transfer_learning': False,
+                'transfer_learning_model': None,
+                'fine_tuning': False
+            }
+
+#            model_0 = {
+#                'model_function': make_model,
+#                'output_folder': "SavedModel_0",
+#                'image_size': 180,
+#                'include_class_weighting': False,
+#                'early_stopping': False,
+#                'random_rotation': 0.2,
+#                'dropout': 0.3,
+#                'epoch_count': 30,
+#                'transfer_learning': False,
+#                'transfer_learning_model': None,
+#                'fine_tuning': False
+#            }
+
+
+            run_model(**model_0)
 
             break
         break
@@ -397,21 +447,21 @@ with open(out_file_path, "w") as out_file:
 #     fine_tuning = True
 # )
 
-model_0 = {
-    'model_function': make_model,
-    'output_folder': "SavedModel_0",
-    'image_size': 180,
-    'include_class_weighting': False,
-    'early_stopping': False,
-    'random_rotation': 0.2,
-    'dropout': 0.3,
-    'epoch_count': 30,
-    'transfer_learning': False,
-    'transfer_learning_model': None,
-    'fine_tuning': False
-}
+#model_0 = {
+#    'model_function': make_model,
+#    'output_folder': "SavedModel_0",
+#    'image_size': 180,
+#    'include_class_weighting': False,
+#    'early_stopping': False,
+#    'random_rotation': 0.2,
+#    'dropout': 0.3,
+#    'epoch_count': 30,
+#    'transfer_learning': False,
+#    'transfer_learning_model': None,
+#    'fine_tuning': False
+#}
 
-run_model(**model_0)
+#run_model(**model_0)
 
 #model1 = model0.copy()
 #model1['include_class_weighting'] = True
