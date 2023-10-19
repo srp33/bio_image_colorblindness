@@ -773,7 +773,6 @@ elife-50231-fig8-v2.jpg	TRUE	Y	N	N	Probably okay	Figure B has overlay, but there
 elife-50279-fig3-v2.jpg	TRUE	Y	N	N	Probably problematic	In the background of the proteins, the green and orange look to similar.
 elife-50279-fig6-v2.jpg	TRUE	Y	Y	N	Definitely okay	
 elife-50294-fig5-v2.jpg	FALSE				Gray-scale	
-elife-50316-fig2-v3.jpg	FALSE				Definitely okay	
 elife-50316-fig7-v2.jpg	FALSE				Definitely okay	
 elife-50345-fig1-v2.jpg	FALSE				Definitely okay	
 elife-50401-fig5-v2.jpg	TRUE	Y	Y	Y	Definitely okay	
@@ -2314,7 +2313,6 @@ elife-28034-fig5-v1	TRUE	Y	Y	Y	Definitely okay
 elife-28074-fig1-v2	TRUE	Y	Y	Y	Definitely okay	
 elife-28083-fig4-v1	TRUE	Y	N	Y	Definitely okay	
 elife-28118-fig2-v1	FALSE				Definitely okay	
-elife-28118-fig6-v2	FALSE				Definitely okay	
 elife-28118-fig7-v1	FALSE				Definitely okay	
 elife-28131-fig2-v2	TRUE	N	N	N	Definitely problematic	
 elife-28132-fig8-v2	TRUE	Y	N	N	Definitely okay	
@@ -2706,7 +2704,6 @@ elife-36629-fig8-v2	TRUE	Y	Y	N	Definitely okay
 elife-36656-fig10-v2	TRUE	Y	N	N	Definitely okay	
 elife-36697-fig6-v2	FALSE				Definitely okay	
 elife-36709-fig1-v3	TRUE	Y	N	Y	Definitely okay	
-elife-36726-fig4-v3	TRUE	Y	Y	Y	Definitely okay	
 elife-36734-fig1-v2	TRUE	Y	N	Y	Definitely okay	
 elife-36758-fig5-v2	TRUE	Y	N	N	Definitely okay	
 elife-36781-fig2-v2	FALSE				Definitely okay	
