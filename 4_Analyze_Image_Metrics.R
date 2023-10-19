@@ -133,7 +133,7 @@ pull(curated_data, conclusion) %>%
   table() %>%
   print()
 # Definitely okay 
-#   3873
+#   3866
 # Probably okay 
 #   210
 # Probably problematic 
@@ -148,9 +148,10 @@ metrics_data = mutate(metrics_data, image_file_name = basename(image_file_path))
   mutate(image_file_name = str_replace(image_file_name, "\\-v\\d$", ""))
 
 ###############################################
-# Use Random Forests classifier to see how well
+# Evaluate how well the metrics
 # we can predict "colorblind friendly status"
 # based on the curated results.
+# Generate 
 ###############################################
 
 set.seed(33)
@@ -228,12 +229,17 @@ auc_data = classification_data %>%
   mutate(euclidean_distance_metric_scaled = min_max_scale(euclidean_distance_metric, inverse=TRUE)) %>%
   mutate(combined_score_scaled = min_max_scale(combined_score, inverse=TRUE))
 
-roc_auc(auc_data, Class, max_ratio_scaled) # 0.632
-roc_auc(auc_data, Class, num_high_ratios_scaled) # 0.749
-roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled) # 0.735
+roc_auc(auc_data, Class, max_ratio_scaled) # 0.630
+roc_auc(auc_data, Class, num_high_ratios_scaled) # 0.748
+roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled) # 0.733
 roc_auc(auc_data, Class, mean_delta_scaled) # 0.444
 roc_auc(auc_data, Class, euclidean_distance_metric_scaled) # 0.673
-roc_auc(auc_data, Class, combined_score_scaled) # 0.710
+roc_auc(auc_data, Class, combined_score_scaled) # 0.709
+
+###############################################
+# Generate file that can be used for
+# performing classification.
+###############################################
 
 classification_data = select(classification_data, -combined_score) %>%
   mutate(Class = as.integer(Class) - 1)
