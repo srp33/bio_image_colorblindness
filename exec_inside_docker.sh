@@ -66,7 +66,7 @@ set -o errexit
 #python3 5_Assign_Cross_Validation_Folds.py
 #python3 6_Classify_Using_Metrics.py
 
-mkdir -p CNN_Models
-python3 7_Classify_Using_CNN/main.py
+python3 7A_Classify_Using_CNN.py
+#7B_plot.py # change to R?
 
 #plot_functions.py
