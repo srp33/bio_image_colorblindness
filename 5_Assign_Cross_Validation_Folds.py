@@ -7,7 +7,7 @@ in_file_path = "Image_Metrics_Classification_Data.tsv"
 out_file_path = "Cross_Validation_Assignments.tsv"
 
 n_cv_splits = 5
-num_iterations = 10
+num_iterations = 3
 seed = 33
 random.seed(seed)
 

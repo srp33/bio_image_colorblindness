@@ -333,13 +333,12 @@ with open(out_file_path, "w") as out_file:
             copy_images_to_directory(testing_image_file_paths_friendly, "TestingImages/friendly")
             copy_images_to_directory(testing_image_file_paths_unfriendly, "TestingImages/unfriendly")
 
-            # TODO: Increase epoch_count to 30
             base_model_settings = {
                 "model_number": 0,
                 "iteration": iteration,
                 "fold": fold,
                 "image_size": 224,
-                "epoch_count": 1,
+                "epoch_count": 30,
                 "include_class_weighting": False,
                 "early_stopping": False,
                 "random_rotation": 0.0,
