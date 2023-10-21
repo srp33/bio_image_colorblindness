@@ -28,7 +28,7 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
     if os.path.exists(out_predictions_file_path):
         print(f"{out_predictions_file_path} already exists.")
         return
-
+    
     image_size = (image_size, image_size)
     batch_size = 32
     validation_split = 0.20
@@ -105,11 +105,13 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
     if transfer_learning_model == "MobileNetV2":
         model_function = make_model_mobile_net2
         base_model = MobileNetV2(input_shape=image_size + (3,), include_top=False, weights='imagenet')
-        base_model.trainable = fine_tuning
+        #base_model.trainable = fine_tuning
+        base_model.trainable = False
     elif transfer_learning_model == "ResNet50":
         model_function = make_model_resnet_50
         base_model = ResNet50(input_shape=image_size + (3,), include_top=False, weights='imagenet')
-        base_model.trainable = fine_tuning
+        #base_model.trainable = fine_tuning
+        base_model.trainable = False
 
     if transfer_learning_model and fine_tuning:
         # Lower the learning rate significantly because the base model is far bigger than our model.
@@ -143,53 +145,73 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
         keras.metrics.AUC(name='prc', curve='PR'), # Precision-recall curve
     ]
 
-    model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate),
-        loss="binary_crossentropy",
-        metrics=METRICS,
-    )
 
-    if include_class_weighting:
-        history = model.fit(
-            train_ds,
-            epochs=epoch_count,
-            callbacks=callbacks,
-            validation_data=val_ds,
-            class_weight=class_weight
+    train_the_model_count = 1
+    if transfer_learning_model and fine_tuning:
+        train_the_model_count = 2
+
+    for i in range(train_the_model_count):
+        if i==0:
+            epoch_metrics = os.path.join(output_metrics_folder, "epoch_metrics.tsv")
+            metrics = os.path.join(output_metrics_folder, "metrics.tsv")
+            model_save_path = os.path.join(output_models_folder, "model.h5")
+        if i==1:
+            base_model.trainable = True
+            learning_rate = 0.00001
+            epoch_count= 15
+            epoch_metrics = os.path.join(output_metrics_folder, "epoch_metrics_fine_tuning.tsv")
+            metrics = os.path.join(output_metrics_folder, "metrics_fine_tuning.tsv")
+            model_save_path = os.path.join(output_models_folder, "model_fine_tuning.h5")
+            out_predictions_file_path= os.path.join(output_metrics_folder, "predictions_fine_tuned.tsv")
+
+
+        model.compile(
+            optimizer=keras.optimizers.Adam(learning_rate),
+            loss="binary_crossentropy",
+            metrics=METRICS,
         )
-    else:
-        history = model.fit(
-            train_ds,
-            epochs=epoch_count,
-            callbacks=callbacks,
-            validation_data=val_ds,
-        )
 
-    historyDf = pd.DataFrame.from_dict(history.history)
-    historyDf.to_csv(os.path.join(output_metrics_folder, "epoch_metrics.tsv"), sep="\t")
+        if include_class_weighting:
+            history = model.fit(
+                train_ds,
+                epochs=epoch_count,
+                callbacks=callbacks,
+                validation_data=val_ds,
+                class_weight=class_weight
+            )
+        else:
+            history = model.fit(
+                train_ds,
+                epochs=epoch_count,
+                callbacks=callbacks,
+                validation_data=val_ds,
+            )
 
-    results = model.evaluate(test_ds)
+        historyDf = pd.DataFrame.from_dict(history.history)
+        historyDf.to_csv(epoch_metrics, sep="\t")
 
-    with open(os.path.join(output_metrics_folder, "metrics.tsv"), "w") as metrics_file:
-        metrics_file.write("metric\tvalue\n")
+        results = model.evaluate(test_ds)
 
-        for name, value in zip(model.metrics_names, results):
-            metrics_file.write(f"{name}\t{value}\n")
+        with open(metrics, "w") as metrics_file:
+            metrics_file.write("metric\tvalue\n")
 
-    predictions = model.predict(test_ds)
+            for name, value in zip(model.metrics_names, results):
+                metrics_file.write(f"{name}\t{value}\n")
 
-    with open(out_predictions_file_path, "w") as pred_file:
-        pred_file.write("image_file_path\tlabel\tprobability_unfriendly\n")
+        predictions = model.predict(test_ds)
 
-        for i in range(len(predictions)):
-            out_row = f"{test_image_file_paths[i]}\t{test_labels[i]}\t{predictions[i][0]}\n"
-            pred_file.write(out_row)
+        with open(out_predictions_file_path, "w") as pred_file:
+            pred_file.write("image_file_path\tlabel\tprobability_unfriendly\n")
 
-    if fine_tuning and transfer_learning_model:
-        base_model.trainable = False
-        model = freeze_layers(model)
+            for i in range(len(predictions)):
+                out_row = f"{test_image_file_paths[i]}\t{test_labels[i]}\t{predictions[i][0]}\n"
+                pred_file.write(out_row)
 
-    model.save(os.path.join(output_models_folder, "model.h5"))
+        if i==1 and fine_tuning and transfer_learning_model:
+            base_model.trainable = False
+            model = freeze_layers(model)
+
+        model.save(model_save_path)
 
 def make_model(input_shape, output_bias, data_augmentation, base_model, dropout=0.3):
     if output_bias is not None:
