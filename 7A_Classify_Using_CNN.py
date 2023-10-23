@@ -28,7 +28,7 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
     if os.path.exists(out_predictions_file_path):
         print(f"{out_predictions_file_path} already exists.")
         return
-    
+
     image_size = (image_size, image_size)
     batch_size = 32
     validation_split = 0.20
@@ -100,7 +100,6 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
 
     model_function = make_model
     base_model = None
-    learning_rate = 0.001
 
     if transfer_learning_model == "MobileNetV2":
         model_function = make_model_mobile_net2
@@ -112,10 +111,6 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
         base_model = ResNet50(input_shape=image_size + (3,), include_top=False, weights='imagenet')
         #base_model.trainable = fine_tuning
         base_model.trainable = False
-
-    if transfer_learning_model and fine_tuning:
-        # Lower the learning rate significantly because the base model is far bigger than our model.
-        learning_rate = 0.00001
 
     model = model_function(input_shape=image_size + (3,), output_bias=initial_bias, data_augmentation=data_augmentation, base_model=base_model, dropout=dropout)
     #model.summary() # Print a summary of the model onto the command line.
@@ -150,19 +145,21 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
     if transfer_learning_model and fine_tuning:
         train_the_model_count = 2
 
+    learning_rate = 0.001
+
     for i in range(train_the_model_count):
-        if i==0:
+        if i == 0:
             epoch_metrics = os.path.join(output_metrics_folder, "epoch_metrics.tsv")
             metrics = os.path.join(output_metrics_folder, "metrics.tsv")
             model_save_path = os.path.join(output_models_folder, "model.h5")
-        if i==1:
+        if i == 1:
             base_model.trainable = True
-            learning_rate = 0.00001
-            epoch_count= 15
+            learning_rate = 0.00001 # Lower the learning rate significantly because the base model is far bigger than our model.
+            epoch_count = 15
             epoch_metrics = os.path.join(output_metrics_folder, "epoch_metrics_fine_tuning.tsv")
             metrics = os.path.join(output_metrics_folder, "metrics_fine_tuning.tsv")
             model_save_path = os.path.join(output_models_folder, "model_fine_tuning.h5")
-            out_predictions_file_path= os.path.join(output_metrics_folder, "predictions_fine_tuned.tsv")
+            out_predictions_file_path = os.path.join(output_metrics_folder, "predictions_fine_tuned.tsv")
 
 
         model.compile(
@@ -422,6 +419,3 @@ with open(out_file_path, "w") as out_file:
             model_settings["transfer_learning_model"] = "ResNet50"
             model_settings["fine_tuning"] = True
             run_model(**model_settings)
-
-            break
-        break
