@@ -14,7 +14,7 @@ from tensorflow import keras
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.applications import ResNet50
 
-def run_model(model_number, iteration, fold, image_size, epoch_count, include_class_weighting, early_stopping, random_rotation, dropout, transfer_learning_model, fine_tuning):
+def run_model(model_number, iteration, fold, image_size, include_class_weighting, early_stopping, random_rotation, dropout, transfer_learning_model, fine_tuning):
     print(f"Model number={model_number}, iteration={iteration}, fold={fold}, early_stopping={early_stopping}, random_rotation={random_rotation}, dropout={dropout}, transfer_learning_model={transfer_learning_model}, fine_tuning={fine_tuning}")
 
     output_metrics_folder = f"CNN_Metrics/model_{model_number}/iteration_{iteration}/fold_{fold}"
@@ -24,6 +24,9 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
     os.makedirs(output_models_folder, exist_ok=True)
 
     out_predictions_file_path = os.path.join(output_metrics_folder, "predictions.tsv")
+    out_metrics_file_path = os.path.join(output_metrics_folder, "metrics.tsv")
+    out_epoch_metrics_file_path = os.path.join(output_metrics_folder, "epoch_metrics.tsv")
+    out_model_file_path = os.path.join(output_models_folder, "model.h5")
 
     if os.path.exists(out_predictions_file_path):
         print(f"{out_predictions_file_path} already exists.")
@@ -104,12 +107,10 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
     if transfer_learning_model == "MobileNetV2":
         model_function = make_model_mobile_net2
         base_model = MobileNetV2(input_shape=image_size + (3,), include_top=False, weights='imagenet')
-        #base_model.trainable = fine_tuning
         base_model.trainable = False
     elif transfer_learning_model == "ResNet50":
         model_function = make_model_resnet_50
         base_model = ResNet50(input_shape=image_size + (3,), include_top=False, weights='imagenet')
-        #base_model.trainable = fine_tuning
         base_model.trainable = False
 
     model = model_function(input_shape=image_size + (3,), output_bias=initial_bias, data_augmentation=data_augmentation, base_model=base_model, dropout=dropout)
@@ -140,27 +141,19 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
         keras.metrics.AUC(name='prc', curve='PR'), # Precision-recall curve
     ]
 
-
     train_the_model_count = 1
     if transfer_learning_model and fine_tuning:
         train_the_model_count = 2
 
-    learning_rate = 0.001
-
     for i in range(train_the_model_count):
         if i == 0:
-            epoch_metrics = os.path.join(output_metrics_folder, "epoch_metrics.tsv")
-            metrics = os.path.join(output_metrics_folder, "metrics.tsv")
-            model_save_path = os.path.join(output_models_folder, "model.h5")
+            learning_rate = 0.001
+            epoch_count = 30
+
         if i == 1:
             base_model.trainable = True
             learning_rate = 0.00001 # Lower the learning rate significantly because the base model is far bigger than our model.
             epoch_count = 15
-            epoch_metrics = os.path.join(output_metrics_folder, "epoch_metrics_fine_tuning.tsv")
-            metrics = os.path.join(output_metrics_folder, "metrics_fine_tuning.tsv")
-            model_save_path = os.path.join(output_models_folder, "model_fine_tuning.h5")
-            out_predictions_file_path = os.path.join(output_metrics_folder, "predictions_fine_tuned.tsv")
-
 
         model.compile(
             optimizer=keras.optimizers.Adam(learning_rate),
@@ -185,11 +178,11 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
             )
 
         historyDf = pd.DataFrame.from_dict(history.history)
-        historyDf.to_csv(epoch_metrics, sep="\t")
+        historyDf.to_csv(out_epoch_metrics_file_path, sep="\t")
 
         results = model.evaluate(test_ds)
 
-        with open(metrics, "w") as metrics_file:
+        with open(out_metrics_file_path, "w") as metrics_file:
             metrics_file.write("metric\tvalue\n")
 
             for name, value in zip(model.metrics_names, results):
@@ -208,7 +201,7 @@ def run_model(model_number, iteration, fold, image_size, epoch_count, include_cl
             base_model.trainable = False
             model = freeze_layers(model)
 
-        model.save(model_save_path)
+        model.save(out_model_file_path)
 
 def make_model(input_shape, output_bias, data_augmentation, base_model, dropout=0.3):
     if output_bias is not None:
@@ -357,7 +350,6 @@ with open(out_file_path, "w") as out_file:
                 "iteration": iteration,
                 "fold": fold,
                 "image_size": 224,
-                "epoch_count": 30,
                 "include_class_weighting": False,
                 "early_stopping": False,
                 "random_rotation": 0.0,
