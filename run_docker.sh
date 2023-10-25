@@ -7,7 +7,6 @@ container_name="bio_image_colorblindness"
 docker build -t ${image_name}:version$(cat VERSION) \
              -t ${image_name}:latest \
              .
-
 mkdir -p TempResults
 
 #  -i -t \
