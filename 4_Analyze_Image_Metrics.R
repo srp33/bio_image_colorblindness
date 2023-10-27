@@ -1,5 +1,4 @@
 library(tidyverse)
-library(tidymodels)
 library(randomForest)
 library(yardstick)
 
@@ -52,30 +51,41 @@ plot_data = filter(metrics_data, is_rgb == 1)
 # The mean, pixel-wise color distance between the original and simulated image
 ggplot(plot_data, aes(x = mean_delta)) +
   geom_histogram(binwidth = 0.005) +
-  xlab("Mean, pixel-wise color distance\nbetween original and simulated images") +
+  xlab("Mean, pixel-wise color distance between original and simulated images") +
   ylab("Count") +
   theme_bw()
+
+if (!dir.exists("Figures"))
+  dir.create("Figures")
+
+ggsave("Figures/Mean_Pixelwise_Distance.pdf", width=6.5)
 
 # The color-distance ratio between the original and simulated images for the color pair with the largest distance in the original image
 ggplot(plot_data, aes(x = max_ratio)) +
   geom_histogram(binwidth = 1) +
-  xlab("Maximum color-distance ratio\nbetween original and simulated images") +
+  xlab("Maximum color-distance ratio between original and simulated images") +
   ylab("Count") +
   theme_bw()
 
+ggsave("Figures/Max_Color_Distance_Ratio.pdf", width=6.5)
+
 # The number of color pairs that exhibited a high color-distance ratio between the original and simulated images
 ggplot(plot_data, aes(x = num_high_ratios)) +
-  geom_histogram(binwidth=5) +
+  geom_histogram(binwidth=10) +
   xlab("Number of high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
 
+ggsave("Figures/Num_High_Ratio_Pairs.pdf", width=6.5)
+
 # The proportion of pixels in the original image that used a color from one of the high-ratio color pairs
 ggplot(plot_data, aes(x = proportion_high_ratio_pixels)) +
-  geom_histogram(binwidth=0.005) +
+  geom_histogram(binwidth=0.01) +
   xlab("Proportion of pixels using high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
+
+ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs.pdf", width=6.5)
 
 # Mean Euclidean distance between pixels for high-ratio color pairs
 ggplot(plot_data, aes(x = euclidean_distance_metric)) +
@@ -83,6 +93,8 @@ ggplot(plot_data, aes(x = euclidean_distance_metric)) +
   xlab("Mean distance between high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
+
+ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs.pdf", width=6.5)
 
 ###############################################
 # Correlation between metrics
