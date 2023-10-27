@@ -31,6 +31,9 @@ def run_model(model_number, iteration, fold, image_size, include_class_weighting
     if os.path.exists(out_predictions_file_path):
         print(f"{out_predictions_file_path} already exists.")
         return
+    #else:
+    #    print(f"{out_predictions_file_path} does not exist.")
+    #    return
 
     image_size = (image_size, image_size)
     batch_size = 32
