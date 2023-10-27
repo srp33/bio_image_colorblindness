@@ -67,7 +67,6 @@ set -o errexit
 #python3 6_Classify_Using_Metrics.py
 
 #python3 7A_Classify_Using_CNN.py > /tmp/7A_Classify_Using_CNN.out 2> /tmp/7A_Classify_Using_CNN.err
-#python3 7B_Collate_CNN_Metrics.py
-#7C_plot.py # TODO: change to R?
+python3 7B_Collate_CNN_Metrics.py
 
 #TODO: Build final model, save it, and apply it to the hold-out set.

@@ -18,4 +18,4 @@ with open(out_file_path, "w") as out_file:
                 if line.startswith("auc"):
                     auroc = float(line.rstrip("\n").split("\t")[1])
 
-        out_file.write(f"{iteration}\t{fold}\tmodel_{model}\t{auroc}\n")
+        out_file.write(f"{iteration}\t{fold}\t{model}\t{auroc}\n")
