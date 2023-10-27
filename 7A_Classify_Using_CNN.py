@@ -414,3 +414,62 @@ with open(out_file_path, "w") as out_file:
             model_settings["transfer_learning_model"] = "ResNet50"
             model_settings["fine_tuning"] = True
             run_model(**model_settings)
+
+            # Round 2: I chose these combinations after trying all of the other models on the training data.
+
+            model_settings = copy.deepcopy(base_model_settings)
+            model_settings["model_number"] = 11
+            model_settings["include_class_weighting"] = True
+            model_settings["early_stopping"] = True
+            model_settings["random_rotation"] = 0.2
+            model_settings["dropout"] = 0.0
+            model_settings["transfer_learning_model"] = "ResNet50"
+            run_model(**model_settings)
+
+            model_settings = copy.deepcopy(base_model_settings)
+            model_settings["model_number"] = 12
+            model_settings["include_class_weighting"] = True
+            model_settings["early_stopping"] = True
+            model_settings["random_rotation"] = 0.2
+            model_settings["dropout"] = 0.2
+            model_settings["transfer_learning_model"] = "ResNet50"
+            run_model(**model_settings)
+
+            model_settings = copy.deepcopy(base_model_settings)
+            model_settings["model_number"] = 13
+            model_settings["include_class_weighting"] = True
+            model_settings["early_stopping"] = True
+            model_settings["random_rotation"] = 0.2
+            model_settings["dropout"] = 0.5
+            model_settings["transfer_learning_model"] = "ResNet50"
+            run_model(**model_settings)
+
+            model_settings = copy.deepcopy(base_model_settings)
+            model_settings["model_number"] = 14
+            model_settings["include_class_weighting"] = True
+            model_settings["early_stopping"] = True
+            model_settings["random_rotation"] = 0.2
+            model_settings["dropout"] = 0.0
+            model_settings["transfer_learning_model"] = "ResNet50"
+            model_settings["fine_tuning"] = True
+            run_model(**model_settings)
+
+            model_settings = copy.deepcopy(base_model_settings)
+            model_settings["model_number"] = 15
+            model_settings["include_class_weighting"] = True
+            model_settings["early_stopping"] = True
+            model_settings["random_rotation"] = 0.2
+            model_settings["dropout"] = 0.2
+            model_settings["transfer_learning_model"] = "ResNet50"
+            model_settings["fine_tuning"] = True
+            run_model(**model_settings)
+
+            model_settings = copy.deepcopy(base_model_settings)
+            model_settings["model_number"] = 16
+            model_settings["include_class_weighting"] = True
+            model_settings["early_stopping"] = True
+            model_settings["random_rotation"] = 0.2
+            model_settings["dropout"] = 0.5
+            model_settings["transfer_learning_model"] = "ResNet50"
+            model_settings["fine_tuning"] = True
+            run_model(**model_settings)
