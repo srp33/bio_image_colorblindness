@@ -313,163 +313,158 @@ random_seed = 123
 seed(random_seed) #Set random seed for numpy
 tf.random.set_seed(random_seed) #Set random seed for tensorflow
 
-out_file_path = "Cross_Validation_Results_CNN.tsv"
-
 assignments_df = pd.read_csv("Cross_Validation_Assignments.tsv", delimiter="\t")
 
-with open(out_file_path, "w") as out_file:
-    out_file.write("iteration\tfold\talgorithm\tauroc\n")
+for iteration in sorted(set(assignments_df["iteration"])):
+    for fold in sorted(set(assignments_df["fold"])):
+        training_image_df = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "training")]
+        testing_image_df = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "testing")]
 
-    for iteration in sorted(set(assignments_df["iteration"])):
-        for fold in sorted(set(assignments_df["fold"])):
-            training_image_df = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "training")]
-            testing_image_df = assignments_df.loc[(assignments_df['iteration'] == iteration) & (assignments_df['fold'] == fold) & (assignments_df['cohort'] == "testing")]
+        training_image_file_paths_unfriendly = []
+        training_image_file_paths_friendly = []
 
-            training_image_file_paths_unfriendly = []
-            training_image_file_paths_friendly = []
+        for index, row in training_image_df.iterrows():
+            if row["Class"] == 0:
+                training_image_file_paths_unfriendly.append(row["image_file_path"])
+            else:
+                training_image_file_paths_friendly.append(row["image_file_path"])
 
-            for index, row in training_image_df.iterrows():
-                if row["Class"] == 0:
-                    training_image_file_paths_unfriendly.append(row["image_file_path"])
-                else:
-                    training_image_file_paths_friendly.append(row["image_file_path"])
+        testing_image_file_paths_unfriendly = []
+        testing_image_file_paths_friendly = []
 
-            testing_image_file_paths_unfriendly = []
-            testing_image_file_paths_friendly = []
+        for index, row in testing_image_df.iterrows():
+            if row["Class"] == 0:
+                testing_image_file_paths_unfriendly.append(row["image_file_path"])
+            else:
+                testing_image_file_paths_friendly.append(row["image_file_path"])
 
-            for index, row in testing_image_df.iterrows():
-                if row["Class"] == 0:
-                    testing_image_file_paths_unfriendly.append(row["image_file_path"])
-                else:
-                    testing_image_file_paths_friendly.append(row["image_file_path"])
+        copy_images_to_directory(training_image_file_paths_friendly, "TrainingImages/friendly")
+        copy_images_to_directory(training_image_file_paths_unfriendly, "TrainingImages/unfriendly")
+        copy_images_to_directory(testing_image_file_paths_friendly, "TestingImages/friendly")
+        copy_images_to_directory(testing_image_file_paths_unfriendly, "TestingImages/unfriendly")
 
-            copy_images_to_directory(training_image_file_paths_friendly, "TrainingImages/friendly")
-            copy_images_to_directory(training_image_file_paths_unfriendly, "TrainingImages/unfriendly")
-            copy_images_to_directory(testing_image_file_paths_friendly, "TestingImages/friendly")
-            copy_images_to_directory(testing_image_file_paths_unfriendly, "TestingImages/unfriendly")
+        base_model_settings = {
+            "model_number": 0,
+            "iteration": iteration,
+            "fold": fold,
+            "image_size": 224,
+            "include_class_weighting": False,
+            "early_stopping": False,
+            "random_rotation": 0.0,
+            "dropout": 0.0,
+            "transfer_learning_model": None,
+            "fine_tuning": False
+        }
 
-            base_model_settings = {
-                "model_number": 0,
-                "iteration": iteration,
-                "fold": fold,
-                "image_size": 224,
-                "include_class_weighting": False,
-                "early_stopping": False,
-                "random_rotation": 0.0,
-                "dropout": 0.0,
-                "transfer_learning_model": None,
-                "fine_tuning": False
-            }
+        run_model(**base_model_settings)
 
-            run_model(**base_model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 1
+        model_settings["include_class_weighting"] = True
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 1
-            model_settings["include_class_weighting"] = True
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 2
+        model_settings["early_stopping"] = True
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 2
-            model_settings["early_stopping"] = True
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 3
+        model_settings["random_rotation"] = 0.2 # This lower bound was suggested by ChatGPT 3.5.
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 3
-            model_settings["random_rotation"] = 0.2 # This lower bound was suggested by ChatGPT 3.5.
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 4
+        model_settings["random_rotation"] = 0.3 # This upper bound was suggested by ChatGPT 3.5.
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 4
-            model_settings["random_rotation"] = 0.3 # This upper bound was suggested by ChatGPT 3.5.
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 5
+        model_settings["dropout"] = 0.2 # This lower bound was suggested by ChatGPT 3.5.
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 5
-            model_settings["dropout"] = 0.2 # This lower bound was suggested by ChatGPT 3.5.
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 6
+        model_settings["dropout"] = 0.5 # This upper bound was suggested by ChatGPT 3.5.
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 6
-            model_settings["dropout"] = 0.5 # This upper bound was suggested by ChatGPT 3.5.
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 7
+        model_settings["transfer_learning_model"] = "MobileNetV2"
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 7
-            model_settings["transfer_learning_model"] = "MobileNetV2"
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 8
+        model_settings["transfer_learning_model"] = "ResNet50"
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 8
-            model_settings["transfer_learning_model"] = "ResNet50"
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 9
+        model_settings["transfer_learning_model"] = "MobileNetV2"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 9
-            model_settings["transfer_learning_model"] = "MobileNetV2"
-            model_settings["fine_tuning"] = True
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 10
+        model_settings["transfer_learning_model"] = "ResNet50"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 10
-            model_settings["transfer_learning_model"] = "ResNet50"
-            model_settings["fine_tuning"] = True
-            run_model(**model_settings)
+        # Round 2: I chose these combinations after trying all of the other models on the training data.
 
-            # Round 2: I chose these combinations after trying all of the other models on the training data.
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 11
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.0
+        model_settings["transfer_learning_model"] = "ResNet50"
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 11
-            model_settings["include_class_weighting"] = True
-            model_settings["early_stopping"] = True
-            model_settings["random_rotation"] = 0.2
-            model_settings["dropout"] = 0.0
-            model_settings["transfer_learning_model"] = "ResNet50"
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 12
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.2
+        model_settings["transfer_learning_model"] = "ResNet50"
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 12
-            model_settings["include_class_weighting"] = True
-            model_settings["early_stopping"] = True
-            model_settings["random_rotation"] = 0.2
-            model_settings["dropout"] = 0.2
-            model_settings["transfer_learning_model"] = "ResNet50"
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 13
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.5
+        model_settings["transfer_learning_model"] = "ResNet50"
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 13
-            model_settings["include_class_weighting"] = True
-            model_settings["early_stopping"] = True
-            model_settings["random_rotation"] = 0.2
-            model_settings["dropout"] = 0.5
-            model_settings["transfer_learning_model"] = "ResNet50"
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 14
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.0
+        model_settings["transfer_learning_model"] = "ResNet50"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 14
-            model_settings["include_class_weighting"] = True
-            model_settings["early_stopping"] = True
-            model_settings["random_rotation"] = 0.2
-            model_settings["dropout"] = 0.0
-            model_settings["transfer_learning_model"] = "ResNet50"
-            model_settings["fine_tuning"] = True
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 15
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.2
+        model_settings["transfer_learning_model"] = "ResNet50"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
 
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 15
-            model_settings["include_class_weighting"] = True
-            model_settings["early_stopping"] = True
-            model_settings["random_rotation"] = 0.2
-            model_settings["dropout"] = 0.2
-            model_settings["transfer_learning_model"] = "ResNet50"
-            model_settings["fine_tuning"] = True
-            run_model(**model_settings)
-
-            model_settings = copy.deepcopy(base_model_settings)
-            model_settings["model_number"] = 16
-            model_settings["include_class_weighting"] = True
-            model_settings["early_stopping"] = True
-            model_settings["random_rotation"] = 0.2
-            model_settings["dropout"] = 0.5
-            model_settings["transfer_learning_model"] = "ResNet50"
-            model_settings["fine_tuning"] = True
-            run_model(**model_settings)
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 16
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.5
+        model_settings["transfer_learning_model"] = "ResNet50"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
