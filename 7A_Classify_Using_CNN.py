@@ -410,7 +410,7 @@ for iteration in sorted(set(assignments_df["iteration"])):
         model_settings["fine_tuning"] = True
         run_model(**model_settings)
 
-        # Round 2: I chose these combinations after trying all of the other models on the training data.
+        # Round 2: We chose these combinations after trying all of the other models on the training data.
 
         model_settings = copy.deepcopy(base_model_settings)
         model_settings["model_number"] = 11
@@ -466,5 +466,64 @@ for iteration in sorted(set(assignments_df["iteration"])):
         model_settings["random_rotation"] = 0.2
         model_settings["dropout"] = 0.5
         model_settings["transfer_learning_model"] = "ResNet50"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
+
+        # Round 3: We chose these combinations to estimate how the smaller MobileNetV2 model would compare.
+
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 17
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.0
+        model_settings["transfer_learning_model"] = "MobileNetV2"
+        run_model(**model_settings)
+
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 18
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.2
+        model_settings["transfer_learning_model"] = "MobileNetV2"
+        run_model(**model_settings)
+
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 19
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.5
+        model_settings["transfer_learning_model"] = "MobileNetV2"
+        run_model(**model_settings)
+
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 20
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.0
+        model_settings["transfer_learning_model"] = "MobileNetV2"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
+
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 21
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.2
+        model_settings["transfer_learning_model"] = "MobileNetV2"
+        model_settings["fine_tuning"] = True
+        run_model(**model_settings)
+
+        model_settings = copy.deepcopy(base_model_settings)
+        model_settings["model_number"] = 22
+        model_settings["include_class_weighting"] = True
+        model_settings["early_stopping"] = True
+        model_settings["random_rotation"] = 0.2
+        model_settings["dropout"] = 0.5
+        model_settings["transfer_learning_model"] = "MobileNetV2"
         model_settings["fine_tuning"] = True
         run_model(**model_settings)
