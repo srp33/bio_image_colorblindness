@@ -145,13 +145,13 @@ pull(curated_data, conclusion) %>%
   table() %>%
   print()
 # Definitely okay 
-#   3865
+#   3865 (77.9%)
 # Probably okay 
 #   210
 # Probably problematic 
 #   74
 # Definitely problematic 
-#   636 
+#   636 (12.8%)
 # Gray-scale 
 #   179
 

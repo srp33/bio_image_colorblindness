@@ -1,4 +1,4 @@
-Image Names	visually detect problem colors (Shades of red, green, and orange)	Contrasts mitigate problem	Labels mitigate problem	Distance mitigates problem	Conclusion (5 types listed in drop down)	Missing the Simulator? / other notes
+Image Names	visually detect problem colors (Shades of red, green, and orange)	Contrasts mitigate problem	Labels mitigate problem	Distance mitigates problem	Conclusion (5 types listed in drop down)	Notes
 elife-00160-fig1-v1.jpg	TRUE	N	N	N	Definitely problematic	Figures C/F are problematic because of the red/green overlay
 elife-00183-fig8-v1.jpg	TRUE	N	N	N	Definitely problematic	All figures except E are problematic because of the red/green overlay
 elife-00184-fig3-v1.jpg	TRUE	N	N	N	Definitely problematic	Hard to distringuish the ligand; and protein quatenary structure is too similar
