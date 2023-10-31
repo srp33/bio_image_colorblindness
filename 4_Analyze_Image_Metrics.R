@@ -155,6 +155,12 @@ pull(curated_data, conclusion) %>%
 # Gray-scale 
 #   179
 
+# How often could we detect potentially problematic color
+filter(curated_data, conclusion == "Definitely okay") %>%
+  group_by(visually_detect) %>%
+  summarize(count = n()) %>%
+  print()
+
 metrics_data = mutate(metrics_data, image_file_name = basename(image_file_path)) %>%
   mutate(image_file_name = str_replace(image_file_name, "\\.jpg$", "")) %>%
   mutate(image_file_name = str_replace(image_file_name, "\\-v\\d$", ""))
@@ -174,6 +180,8 @@ classification_data = inner_join(metrics_data, curated_data, by="image_file_name
   mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay"))) %>%
   filter(!is.na(euclidean_distance_metric)) %>%
   select(image_file_path, max_ratio, num_high_ratios, proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric, combined_score, Class)
+View(classification_data)
+stop()
 
 alpha = 0.05
 size = 0.7
