@@ -1716,7 +1716,7 @@ elife-13909-fig5-v2	TRUE	Y	Y	Y	Definitely okay
 elife-13926-fig6-v2	TRUE	Y	N	Y	Definitely okay	
 elife-13941-fig6-v1	TRUE	Y	N	N	Definitely okay	
 elife-13943-fig1-v3	TRUE	N	N	N	Definitely problematic	
-elife-14012-fig4-v1					Definitely okay	
+elife-14012-fig4-v1	FALSE				Definitely okay	
 elife-14029-fig1-v4	FALSE				Definitely okay	
 elife-14107-fig10-v3	FALSE				Definitely okay	
 elife-14120-fig4-v1	TRUE	NA	NA	Y	Definitely okay	
@@ -1848,7 +1848,7 @@ elife-17505-fig2-v2	TRUE	Y	Y	N	Definitely okay
 elife-17536-fig5-v2	TRUE	NA	NA	Y	Definitely okay	
 elife-17589-fig5-v2	TRUE	Y	Y	N	Definitely okay	
 elife-17589-fig7-v2	TRUE	N	N	N	Definitely problematic	
-elife-17636-fig10-v2					Definitely okay	
+elife-17636-fig10-v2	FALSE				Definitely okay	
 elife-17681-fig1-v3	TRUE	N	N	N	Definitely problematic	
 elife-17681-fig6-v4	TRUE	N	N	N	Definitely problematic	
 elife-17688-fig5-v1	TRUE	Y	N	N	Probably okay	There is some sort of heatmap between green and red, but there are no lables.
