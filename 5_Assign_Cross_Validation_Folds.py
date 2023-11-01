@@ -25,7 +25,7 @@ y = df["Class"].values
 X = df.drop("Class", axis=1)
 
 with open(out_file_path, "w") as out_file:
-    out_file.write("image_file_path\titeration\tfold\tcohort\tClass\n")
+    out_file.write("image_file_path\tdeut_image_file_path\titeration\tfold\tcohort\tClass\n")
 
     for iteration in range(1, num_iterations + 1):
         stratified_kfold = StratifiedKFold(n_splits=n_cv_splits, shuffle=True, random_state=iteration)
@@ -35,7 +35,8 @@ with open(out_file_path, "w") as out_file:
             fold += 1
 
             for row_index, image_file_path in enumerate(df["image_file_path"]):
+                deut_image_file_path = df["deut_image_file_path"][row_index]
                 cohort = ["testing", "training"][row_index in train_indices]
                 Class = y[row_index]
 
-                out_file.write(f"{image_file_path}\t{iteration}\t{fold}\t{cohort}\t{Class}\n")
+                out_file.write(f"{image_file_path}\t{deut_image_file_path}\t{iteration}\t{fold}\t{cohort}\t{Class}\n")
