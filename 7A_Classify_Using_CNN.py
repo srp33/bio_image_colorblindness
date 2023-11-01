@@ -290,6 +290,22 @@ def freeze_layers(model):
             freeze_layers(i)
     return model
 
+def use_available_image_version(file_paths):
+    results = []
+
+    for x in file_paths:
+        first_dir = x.split("/")[0]
+        second_dir = x.split("/")[1]
+        second_dir = "-".join(second_dir.split("-")[:-1])
+        file_name = x.split("/")[2]
+
+        mod_x = f"{first_dir}/{second_dir}-v*/{file_name}"
+        file_path_to_use = sorted(glob.glob(mod_x))[0]
+
+        results.append(file_path_to_use)
+
+    return results
+
 def copy_images_to_directory(file_paths, destination_directory):
     # Create the destination directory if it does not exist
     os.makedirs(destination_directory, exist_ok = True)
@@ -302,9 +318,10 @@ def copy_images_to_directory(file_paths, destination_directory):
     # Copy the files to the destination directory
     count = 0
     for file_path in file_paths:
-        shutil.copy(file_path, destination_directory)
-        #if not os.path.exists(f"{destination_directory}/{os.path.basename(file_path)}"):
-        if os.path.exists(f"{destination_directory}/{os.path.basename(file_path)}"):
+        destination_file_path = f"{destination_directory}/{os.path.basename(os.path.dirname(file_path))}.jpg"
+        shutil.copy(file_path, destination_file_path)
+
+        if os.path.exists(destination_file_path):
             count += 1
 
     print(f"{count} images in {destination_directory}")
@@ -337,6 +354,11 @@ for iteration in sorted(set(assignments_df["iteration"])):
                 testing_image_file_paths_unfriendly.append(row["image_file_path"])
             else:
                 testing_image_file_paths_friendly.append(row["image_file_path"])
+
+        training_image_file_paths_friendly = use_available_image_version(training_image_file_paths_friendly)
+        training_image_file_paths_unfriendly = use_available_image_version(training_image_file_paths_unfriendly)
+        testing_image_file_paths_friendly = use_available_image_version(testing_image_file_paths_friendly)
+        testing_image_file_paths_unfriendly = use_available_image_version(testing_image_file_paths_unfriendly)
 
         copy_images_to_directory(training_image_file_paths_friendly, "TrainingImages/friendly")
         copy_images_to_directory(training_image_file_paths_unfriendly, "TrainingImages/unfriendly")

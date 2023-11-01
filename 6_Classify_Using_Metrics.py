@@ -35,6 +35,8 @@ with open(out_file_path, "w") as out_file:
 
             training_df = training_df.drop("image_file_path", axis=1)
             testing_df = testing_df.drop("image_file_path", axis=1)
+            training_df = training_df.drop("deut_image_file_path", axis=1)
+            testing_df = testing_df.drop("deut_image_file_path", axis=1)
 
             training_y = training_df["Class"].values
             training_X = training_df.drop("Class", axis=1)
