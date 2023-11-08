@@ -58,7 +58,7 @@ ggplot(plot_data, aes(x = mean_delta)) +
 if (!dir.exists("Figures"))
   dir.create("Figures")
 
-ggsave("Figures/Mean_Pixelwise_Distance.pdf", width=6.5)
+ggsave("Figures/Mean_Pixelwise_Distance_histogram.pdf", width=6.5)
 
 # The color-distance ratio between the original and simulated images for the color pair with the largest distance in the original image
 ggplot(plot_data, aes(x = max_ratio)) +
@@ -67,7 +67,7 @@ ggplot(plot_data, aes(x = max_ratio)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Max_Color_Distance_Ratio.pdf", width=6.5)
+ggsave("Figures/Max_Color_Distance_Ratio_histogram.pdf", width=6.5)
 
 # The number of color pairs that exhibited a high color-distance ratio between the original and simulated images
 ggplot(plot_data, aes(x = num_high_ratios)) +
@@ -76,7 +76,7 @@ ggplot(plot_data, aes(x = num_high_ratios)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Num_High_Ratio_Pairs.pdf", width=6.5)
+ggsave("Figures/Num_High_Ratio_Pairs_histogram.pdf", width=6.5)
 
 # The proportion of pixels in the original image that used a color from one of the high-ratio color pairs
 ggplot(plot_data, aes(x = proportion_high_ratio_pixels)) +
@@ -85,7 +85,7 @@ ggplot(plot_data, aes(x = proportion_high_ratio_pixels)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs.pdf", width=6.5)
+ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs_histogram.pdf", width=6.5)
 
 # Mean Euclidean distance between pixels for high-ratio color pairs
 ggplot(plot_data, aes(x = euclidean_distance_metric)) +
@@ -94,7 +94,7 @@ ggplot(plot_data, aes(x = euclidean_distance_metric)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs.pdf", width=6.5)
+ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs_histogram.pdf", width=6.5)
 
 ###############################################
 # Correlation between metrics
@@ -155,10 +155,22 @@ pull(curated_data, conclusion) %>%
 # Gray-scale 
 #   179
 
-# How often could we detect potentially problematic color
+# How often could we visually detect potentially problematic colors?
 filter(curated_data, conclusion == "Definitely okay") %>%
   group_by(visually_detect) %>%
   summarize(count = n()) %>%
+  print()
+
+# How often did color contrasts, distances, or labels mitigate potentially problematic colors?
+filter(curated_data, conclusion == "Definitely okay") %>%
+  filter(visually_detect) %>%
+  select(-visually_detect, -conclusion, -Notes) %>%
+  pivot_longer(-image_file_name, names_to = "criteria", values_to = "value") %>%
+  group_by(criteria) %>%
+  filter(!is.na(value)) %>%
+  summarize(total = n(), mitigates_count = sum(value)) %>%
+  ungroup() %>%
+  mutate(mitigates_percent = mitigates_count / total) %>%
   print()
 
 metrics_data = mutate(metrics_data, image_file_name = basename(image_file_path)) %>%
@@ -179,14 +191,25 @@ classification_data = inner_join(metrics_data, curated_data, by="image_file_name
   filter(Class %in% c("Definitely okay", "Definitely problematic")) %>%
   mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay"))) %>%
   filter(!is.na(euclidean_distance_metric)) %>%
-  select(image_file_path, max_ratio, num_high_ratios, proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric, combined_score, Class)
-View(classification_data)
-stop()
+  mutate(image_file_dir = basename(image_file_path)) %>%
+  mutate(image_file_dir = str_replace(image_file_dir, "\\.jpg", "")) %>%
+  mutate(image_file_path = str_c("ImageSample1to5000/", image_file_dir, "/original.jpg")) %>%
+  mutate(deut_image_file_path = str_c("ImageSample1to5000/", image_file_dir, "/deut.jpg")) %>%
+  select(image_file_path, deut_image_file_path, max_ratio, num_high_ratios, proportion_high_ratio_pixels, mean_delta, euclidean_distance_metric, combined_score, Class)
 
-alpha = 0.05
-size = 0.7
+alpha = 0.08
+size = 0.8
 color = "red"
-base_size = 18
+base_size = 14
+
+ggplot(classification_data, aes(x = Class, y = mean_delta)) +
+  geom_boxplot() +
+  geom_jitter(alpha = alpha, size=size, color = color) +
+  theme_bw() +
+  xlab("") +
+  ylab("Mean, pixel-wise color distance\nbetween original and simulated image")
+
+ggsave("Figures/Mean_Pixelwise_Distance_boxplot.pdf", width=6.5)
 
 ggplot(classification_data, aes(x = Class, y = log2(max_ratio))) +
   geom_boxplot() +
@@ -195,12 +218,16 @@ ggplot(classification_data, aes(x = Class, y = log2(max_ratio))) +
   xlab("") +
   ylab("Max color-distance ratio (log2 scale)")
 
+ggsave("Figures/Max_Color_Distance_Ratio_boxplot.pdf", width=6.5)
+
 ggplot(classification_data, aes(x = Class, y = log(num_high_ratios))) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw() +
   xlab("") +
   ylab("Number of high-ratio color pairs (log2 scale)")
+
+ggsave("Figures/Num_High_Ratio_Pairs_boxplot.pdf", width=6.5)
 
 ggplot(classification_data, aes(x = Class, y = proportion_high_ratio_pixels)) +
   geom_boxplot() +
@@ -209,19 +236,16 @@ ggplot(classification_data, aes(x = Class, y = proportion_high_ratio_pixels)) +
   xlab("") +
   ylab("Proportion of high-ratio pixels")
 
-ggplot(classification_data, aes(x = Class, y = mean_delta)) +
-  geom_boxplot() +
-  geom_jitter(alpha = alpha, size=size, color = color) +
-  theme_bw() +
-  xlab("") +
-  ylab("Mean, pixel-wise color distance between original and simulated image")
+ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs_boxplot.pdf", width=6.5)
 
 ggplot(classification_data, aes(x = Class, y = euclidean_distance_metric)) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw() +
   xlab("") +
-  ylab("Mean Euclidean distance between pixels for high-ratio color pairs")
+  ylab("Mean Euclidean distance between\npixels for high-ratio color pairs")
+
+ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs_boxplot.pdf", width=6.5)
 
 ggplot(classification_data, aes(x = Class, y = combined_score)) +
   geom_boxplot() +
@@ -229,6 +253,8 @@ ggplot(classification_data, aes(x = Class, y = combined_score)) +
   theme_bw() +
   xlab("") +
   ylab("Combined rank score")
+
+ggsave("Figures/Combined_Rank_Score_boxplot.pdf", width=6.5)
 
 # Calculate AUROC for each of these scores.
 
