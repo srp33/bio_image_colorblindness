@@ -71,6 +71,7 @@ set -o errexit
 
 #Rscript 8_Summarize_Cross_Validation.R
 
-Rscript 9_Analyze_Image_Metrics_Test.R
+#Rscript 9_Analyze_Image_Metrics_Testing.R
+python3 10_Classify_Using_Metrics_Testing.py
 
 #TODO: Build final model, save it, and apply it to the hold-out set.
