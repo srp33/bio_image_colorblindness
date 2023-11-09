@@ -181,7 +181,6 @@ metrics_data = mutate(metrics_data, image_file_name = basename(image_file_path))
 # Evaluate how well the metrics
 # we can predict "colorblind friendly status"
 # based on the curated results.
-# Generate 
 ###############################################
 
 set.seed(33)
