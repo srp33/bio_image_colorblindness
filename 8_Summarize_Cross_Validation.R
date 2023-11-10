@@ -9,11 +9,13 @@ save_fig = function(file_name, width=6.5) {
 dir.create("Figures", showWarnings = FALSE, recursive = TRUE)
 dir.create("Tables", showWarnings = FALSE, recursive = TRUE)
 
-metrics_data = read_tsv("Cross_Validation_Results_Metrics.tsv") %>%
+read_tsv("Cross_Validation_Results_Metrics.tsv") %>%
   group_by(algorithm, iteration) %>%
   summarise(auroc = median(auroc)) %>%
   group_by(algorithm) %>%
-  summarize(auroc = mean(auroc))
+  summarize(auroc = mean(auroc)) %>%
+  kable(format="simple") %>%
+  write("Tables/Cross_Validation_Results_Metrics.md")
 
 cnn_data = read_tsv("Cross_Validation_Results_CNN.tsv") %>%
   group_by(algorithm, image_type, iteration) %>%
