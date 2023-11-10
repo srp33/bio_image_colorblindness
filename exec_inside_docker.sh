@@ -70,8 +70,7 @@ set -o errexit
 #python3 7B_Collate_CNN_Metrics.py
 
 #Rscript 8_Summarize_Cross_Validation.R
-
 #Rscript 9_Analyze_Image_Metrics_Testing.R
-python3 10_Classify_Using_Metrics_Testing.py
+#python3 10_Classify_Using_Metrics_Testing.py
 
-#TODO: Build final model, save it, and apply it to the hold-out set.
+python3 11_Classify_Using_CNN_Testing.py > /tmp/7A_Classify_Using_CNN.out 2> /tmp/7A_Classify_Using_CNN.err
