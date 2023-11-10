@@ -2,7 +2,6 @@ import copy
 import glob
 from keras import layers
 from keras.models import Model
-import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import seed
 import os
@@ -15,7 +14,7 @@ from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.applications import ResNet50
 
 def run_model(model_number, image_type, iteration, fold, image_size, include_class_weighting, early_stopping, random_rotation, dropout, transfer_learning_model, fine_tuning):
-    print(f"Model number={model_number}, image type={image_type}, iteration={iteration}, fold={fold}, early_stopping={early_stopping}, random_rotation={random_rotation}, dropout={dropout}, transfer_learning_model={transfer_learning_model}, fine_tuning={fine_tuning}")
+    print(f"Model number={model_number}, image type={image_type}, iteration={iteration}, fold={fold}, include_class_weighting={include_class_weighting}, early_stopping={early_stopping}, random_rotation={random_rotation}, dropout={dropout}, transfer_learning_model={transfer_learning_model}, fine_tuning={fine_tuning}")
 
     model_dir_name = f"model_{model_number}"
     if image_type == "deut":

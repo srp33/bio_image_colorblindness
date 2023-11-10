@@ -73,4 +73,4 @@ set -o errexit
 #Rscript 9_Analyze_Image_Metrics_Testing.R
 #python3 10_Classify_Using_Metrics_Testing.py
 
-python3 11_Classify_Using_CNN_Testing.py > /tmp/7A_Classify_Using_CNN.out 2> /tmp/7A_Classify_Using_CNN.err
+python3 11_Classify_Using_CNN_Testing.py

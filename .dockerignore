@@ -1,6 +1,6 @@
 .DS_Store
 all_eLife_articles.tsv
-CNN_Models
+CNN_Models*
 elife-article-xml*
 Images
 TempResults
