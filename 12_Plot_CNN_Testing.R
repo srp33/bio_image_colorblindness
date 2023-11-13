@@ -19,4 +19,4 @@ misclassification_summary2 = arrange(data, desc(probability_unfriendly)) %>%
   filter(probability_unfriendly > 0.5)
 
 bind_rows(misclassification_summary1, misclassification_summary2) %>%
-  write_xlsx("CNN_Top_Misclassifications.xlsx")
+  write_xlsx("CNN_Misclassifications_Testing.xlsx")
