@@ -1,3 +1,4 @@
+library(knitr)
 library(tidyverse)
 library(randomForest)
 library(yardstick)
@@ -274,12 +275,23 @@ auc_data = classification_data %>%
   mutate(euclidean_distance_metric_scaled = min_max_scale(euclidean_distance_metric, inverse=TRUE)) %>%
   mutate(combined_score_scaled = min_max_scale(combined_score, inverse=TRUE))
 
-roc_auc(auc_data, Class, max_ratio_scaled) # 0.630
-roc_auc(auc_data, Class, num_high_ratios_scaled) # 0.748
-roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled) # 0.733
-roc_auc(auc_data, Class, mean_delta_scaled) # 0.444
-roc_auc(auc_data, Class, euclidean_distance_metric_scaled) # 0.673
-roc_auc(auc_data, Class, combined_score_scaled) # 0.709
+max_ratio_scaled = pull(roc_auc(auc_data, Class, max_ratio_scaled), .estimate) # 0.630
+num_high_ratios_scaled = pull(roc_auc(auc_data, Class, num_high_ratios_scaled), .estimate) # 0.748
+proportion_high_ratio_pixels_scaled = pull(roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled), .estimate) # 0.733
+mean_delta_scaled = pull(roc_auc(auc_data, Class, mean_delta_scaled), .estimate) # 0.444
+euclidean_distance_metric_scaled = pull(roc_auc(auc_data, Class, euclidean_distance_metric_scaled), .estimate) # 0.673
+combined_score_scaled = pull(roc_auc(auc_data, Class, combined_score_scaled), .estimate) # 0.709
+
+tribble(~"Metric", ~"AUROC",
+        "Mean, pixel-wise color distance between the original and simulated image", round(mean_delta_scaled, 2),
+        "Color-distance ratio between the original and simulated images for the color pair with the largest distance in the original image", round(max_ratio_scaled, 2),
+        "Number of color pairs that exhibited a high color-distance ratio between the original and simulated images", round(num_high_ratios_scaled, 2),
+        "Proportion of pixels in the original image that used a color from one of the high-ratio color pairs", round(proportion_high_ratio_pixels_scaled, 2),
+        "Mean Euclidean distance between pixels for high-ratio color pairs", round(euclidean_distance_metric_scaled, 2),
+        "Rank-based score that combines the metrics", round(combined_score_scaled, 2))
+%>%
+  kable(format="simple") %>%
+  write("Tables/Metrics_AUROC.md")
 
 ###############################################
 # Generate file that can be used for

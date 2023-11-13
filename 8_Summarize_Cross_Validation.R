@@ -14,6 +14,9 @@ read_tsv("Cross_Validation_Results_Metrics.tsv") %>%
   summarise(auroc = median(auroc)) %>%
   group_by(algorithm) %>%
   summarize(auroc = mean(auroc)) %>%
+  mutate(auroc = round(auroc, 2)) %>%
+  dplyr::rename(Algorithm = algorithm) %>%
+  dplyr::rename(AUROC = auroc) %>%
   kable(format="simple") %>%
   write("Tables/Cross_Validation_Results_Metrics.md")
 

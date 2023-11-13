@@ -1,5 +1,5 @@
-algorithm                  auroc
---------------------  ----------
-Logistic Regression    0.8171122
-Nearest Neighbors      0.7180388
-Random Forests         0.7987957
+Algorithm              AUROC
+--------------------  ------
+Logistic Regression     0.82
+Nearest Neighbors       0.72
+Random Forests          0.80
