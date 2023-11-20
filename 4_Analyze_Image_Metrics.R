@@ -6,6 +6,23 @@ library(yardstick)
 metrics_data = read_tsv("eLife_Metrics.tsv") %>%
   filter(!is_duplicate)
 
+nrow(metrics_data) %>%
+  print() # 66253
+
+###############################################
+# Identify images with at least one potentially
+# problematic color pair.
+###############################################
+
+num_with_high_ratio = filter(metrics_data, is_rgb == 1) %>%
+  filter(num_high_ratios > 0) %>%
+  nrow() # 56816
+
+num_rgb = filter(metrics_data, is_rgb == 1) %>%
+  nrow() # 64509
+
+print(num_with_high_ratio / num_rgb) # 0.8807453
+
 ###############################################
 # Use a ranking approach to combine the metrics
 # into a single score
