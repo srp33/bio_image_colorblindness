@@ -6,7 +6,7 @@ library(yardstick)
 metrics_data = read_tsv("eLife_Metrics.tsv") %>%
   filter(!is_duplicate)
 
-nrow(metrics_data) %>%
+num_images = nrow(metrics_data) %>%
   print() # 66253
 
 ###############################################
@@ -18,10 +18,7 @@ num_with_high_ratio = filter(metrics_data, is_rgb == 1) %>%
   filter(num_high_ratios > 0) %>%
   nrow() # 56816
 
-num_rgb = filter(metrics_data, is_rgb == 1) %>%
-  nrow() # 64509
-
-print(num_with_high_ratio / num_rgb) # 0.8807453
+print(num_with_high_ratio / num_images) # 0.8575612
 
 ###############################################
 # Use a ranking approach to combine the metrics
@@ -305,8 +302,7 @@ tribble(~"Metric", ~"AUROC",
         "Number of color pairs that exhibited a high color-distance ratio between the original and simulated images", round(num_high_ratios_scaled, 2),
         "Proportion of pixels in the original image that used a color from one of the high-ratio color pairs", round(proportion_high_ratio_pixels_scaled, 2),
         "Mean Euclidean distance between pixels for high-ratio color pairs", round(euclidean_distance_metric_scaled, 2),
-        "Rank-based score that combines the metrics", round(combined_score_scaled, 2))
-%>%
+        "Rank-based score that combines the metrics", round(combined_score_scaled, 2)) %>%
   kable(format="simple") %>%
   write("Tables/Metrics_AUROC.md")
 
@@ -319,3 +315,86 @@ classification_data = select(classification_data, -combined_score) %>%
   mutate(Class = as.integer(Class) - 1)
 
 write_tsv(classification_data, "Image_Metrics_Classification_Data.tsv")
+
+###############################################
+# Evaluate trends over time and by subdiscipline.
+###############################################
+
+article_data = read_tsv("all_eLife_articles.tsv") %>%
+  dplyr::rename(article_id = `ARTICLE ID`) %>%
+  dplyr::rename(subjects = `SUBJECT(S)`) %>%
+  separate(DATE, sep="-", into=c("year", "month", "day"))
+
+article_data_year = select(article_data, article_id, year)
+
+article_data_subjects = select(article_data, article_id, subjects) %>%
+  separate(subjects, sep=", ", into=paste0("X", 1:50)) %>%
+  pivot_longer(paste0("X", 1:50), names_to = "ignore", values_to = "subject") %>%
+  filter(!is.na(subject)) %>%
+  select(-ignore)
+
+curated_article_data = separate(curated_data, image_file_name, sep="-", into=c("x", "article_id", "y")) %>%
+  select(article_id, conclusion) %>%
+  filter(conclusion %in% c("Definitely okay", "Definitely problematic"))
+
+calc_proportion_problematic = function(count) {
+  n = sum(count)
+  proportion = count[2] / n
+
+  return(paste0(proportion * 100, "|", n))
+}
+
+plot_data_year = inner_join(curated_article_data, article_data_year) %>%
+  arrange(year, conclusion) %>%
+  group_by(year, conclusion) %>%
+  summarize(count = n()) %>%
+  ungroup() %>%
+  group_by(year) %>%
+  summarize(tmp = calc_proportion_problematic(count)) %>%
+  ungroup() %>%
+  separate(tmp, into = c("proportion_problematic", "n"), sep="\\|") %>%
+  mutate(label = str_c(year, "\n(n = ", n, ")")) %>%
+  mutate(proportion_problematic = as.double(proportion_problematic)) %>%
+  mutate(year = as.integer(year)) %>%
+  mutate(year_from_baseline = year - min(year) + 1)
+
+trend_line = lm(proportion_problematic ~ year_from_baseline, data = plot_data_year)
+
+p_value = summary(trend_line)$coefficients[2,4]
+p_text = paste0("p = ", round(p_value, 5))
+
+ggplot(plot_data_year, aes(x = factor(label), y = proportion_problematic)) +
+  geom_col(fill = "#74add1") +
+  geom_abline(slope = coef(trend_line)[[2]], intercept = coef(trend_line)[[1]], color = "#d73027", linetype = "dashed") +
+  xlab("") +
+  ylab("% Definitely problematic") +
+  theme_bw() +
+  geom_text(aes(x = 10, y = 25, label = p_text), hjust = 1, vjust = 1)
+
+ggsave("Figures/Proportion_Problematic_Over_Time_barplot.pdf", width=8.5)
+
+plot_data_subjects = inner_join(curated_article_data, article_data_subjects, relationship = "many-to-many") %>%
+  arrange(subject, conclusion) %>%
+  group_by(subject, conclusion) %>%
+  summarize(count = n()) %>%
+  ungroup() %>%
+  group_by(subject) %>%
+  summarize(tmp = calc_proportion_problematic(count)) %>%
+  ungroup() %>%
+  separate(tmp, into = c("proportion_problematic", "n"), sep="\\|") %>%
+  mutate(label = str_c(subject, " (n = ", n, ")")) %>%
+  mutate(proportion_problematic = as.double(proportion_problematic)) %>%
+  mutate(label = factor(label, levels=rev(label))) %>%
+  mutate(severity = ifelse(proportion_problematic > 20, "high", ifelse(proportion_problematic > 10, "medium", "low"))) %>%
+  mutate(severity = factor(severity, levels = c("low", "medium", "high")))
+
+ggplot(plot_data_subjects, aes(x = label, y = proportion_problematic)) +
+  geom_col(aes(fill = severity)) +
+  scale_fill_manual(values = c("#74add1", "#fdae61", "#d73027")) +
+  xlab("") +
+  ylab("% Definitely problematic") +
+  theme_bw() +
+  coord_flip() +
+  guides(fill = FALSE)
+
+ggsave("Figures/Proportion_Problematic_Subjects_barplot.pdf", width=6.5)
