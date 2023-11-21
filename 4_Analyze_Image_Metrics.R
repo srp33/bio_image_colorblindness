@@ -378,15 +378,19 @@ plot_data_subjects = inner_join(curated_article_data, article_data_subjects, rel
   group_by(subject, conclusion) %>%
   summarize(count = n()) %>%
   ungroup() %>%
-  group_by(subject) %>%
-  summarize(tmp = calc_proportion_problematic(count)) %>%
-  ungroup() %>%
-  separate(tmp, into = c("proportion_problematic", "n"), sep="\\|") %>%
+  pivot_wider(names_from = conclusion, values_from = count) %>%
+  mutate(n = `Definitely problematic` + `Definitely okay`) %>%
+  mutate(proportion_problematic = `Definitely problematic` / n) %>%
   mutate(label = str_c(subject, " (n = ", n, ")")) %>%
-  mutate(proportion_problematic = as.double(proportion_problematic)) %>%
   mutate(label = factor(label, levels=rev(label))) %>%
   mutate(severity = ifelse(proportion_problematic > 20, "high", ifelse(proportion_problematic > 10, "medium", "low"))) %>%
   mutate(severity = factor(severity, levels = c("low", "medium", "high")))
+
+actual = pull(plot_data_subjects, `Definitely problematic`)
+expected_proportions = pull(plot_data_subjects, n) / sum(pull(plot_data_subjects, n))
+p_value = chisq.test(actual, p = expected_proportions, correct = FALSE)$p.value
+p_text = paste0("p = ", sprintf("%.1e", p_value))
+print(p_text)
 
 ggplot(plot_data_subjects, aes(x = label, y = proportion_problematic)) +
   geom_col(aes(fill = severity)) +
@@ -395,6 +399,7 @@ ggplot(plot_data_subjects, aes(x = label, y = proportion_problematic)) +
   ylab("% Definitely problematic") +
   theme_bw() +
   coord_flip() +
-  guides(fill = FALSE)
+  guides(fill = FALSE) +
+  geom_text(aes(x = 17.5, y = 0.31, label = p_text), size = 3)
 
 ggsave("Figures/Proportion_Problematic_Subjects_barplot.pdf", width=6.5)
