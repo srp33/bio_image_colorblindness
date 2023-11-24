@@ -82,3 +82,4 @@ Rscript 9_Analyze_Image_Metrics_Testing.R
 python3 10_Classify_Using_Metrics_Testing.py
 python3 11_Classify_Using_CNN_Testing.py
 Rscript 12_Plot_CNN_Testing.R
+python3 13_Export_Model_JS.py
