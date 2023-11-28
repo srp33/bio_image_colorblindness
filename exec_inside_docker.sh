@@ -69,17 +69,18 @@ set -o errexit
 #cp eLife_Metrics.tsv /tmp/eLife_Metrics.tsv
 #python3 3D_Mark_Duplicates.py
 
-Rscript 4_Analyze_Image_Metrics.R
-python3 5_Assign_Cross_Validation_Folds.py
-python3 6_Classify_Using_Metrics.py
+#Rscript 4_Analyze_Image_Metrics.R
+#python3 5_Assign_Cross_Validation_Folds.py
+#python3 6_Classify_Using_Metrics.py
 
-python3 7A_Classify_Using_CNN.py > /tmp/7A_Classify_Using_CNN.out 2> /tmp/7A_Classify_Using_CNN.err
-python3 7B_Collate_CNN_Metrics.py
+#python3 7A_Classify_Using_CNN.py > /tmp/7A_Classify_Using_CNN.out 2> /tmp/7A_Classify_Using_CNN.err
+#python3 7B_Collate_CNN_Metrics.py
 
-Rscript 8_Summarize_Cross_Validation.R
+#Rscript 8_Summarize_Cross_Validation.R
 
-Rscript 9_Analyze_Image_Metrics_Testing.R
-python3 10_Classify_Using_Metrics_Testing.py
-python3 11_Classify_Using_CNN_Testing.py
-Rscript 12_Plot_CNN_Testing.R
-python3 13_Export_Model_JS.py
+#Rscript 9_Analyze_Image_Metrics_Testing.R
+#python3 10_Classify_Using_Metrics_Testing.py
+#python3 11_Classify_Using_CNN_Testing.py
+#Rscript 12_Plot_CNN_Testing.R
+
+tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir
