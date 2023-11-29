@@ -380,7 +380,7 @@ plot_data_subjects = inner_join(curated_article_data, article_data_subjects, rel
   ungroup() %>%
   pivot_wider(names_from = conclusion, values_from = count) %>%
   mutate(n = `Definitely problematic` + `Definitely okay`) %>%
-  mutate(proportion_problematic = `Definitely problematic` / n) %>%
+  mutate(proportion_problematic = 100 * `Definitely problematic` / n) %>%
   mutate(label = str_c(subject, " (n = ", n, ")")) %>%
   mutate(label = factor(label, levels=rev(label))) %>%
   mutate(severity = ifelse(proportion_problematic > 20, "high", ifelse(proportion_problematic > 10, "medium", "low"))) %>%
@@ -400,6 +400,6 @@ ggplot(plot_data_subjects, aes(x = label, y = proportion_problematic)) +
   theme_bw() +
   coord_flip() +
   guides(fill = FALSE) +
-  geom_text(aes(x = 17.5, y = 0.31, label = p_text), size = 3)
+  geom_text(aes(x = 17.5, y = 31, label = p_text), size = 3)
 
 ggsave("Figures/Proportion_Problematic_Subjects_barplot.pdf", width=6.5)
