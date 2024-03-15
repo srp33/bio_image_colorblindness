@@ -38,4 +38,9 @@ if (!file.exists(fileListTmpFilePath)) {
     # 3,621,508 articles after inner join
 }
 
+read_tsv(fileListTmpFilePath3) %>%
+    slice_sample(n = 2000) %>%
+    arrange(Timestamp) %>%
+    print()
+
 #TODO: Randomly select articles. Retrieve images.
