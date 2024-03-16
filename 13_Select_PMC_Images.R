@@ -5,42 +5,62 @@
 
 library(tidyverse)
 
-fileListTmpFilePath = "/tmp/PMC_File_List.tsv.gz"
-fileListTmpFilePath2 = "/tmp/PMC_File_List2.tsv.gz"
-fileListTmpFilePath3 = "/tmp/PMC_File_List3.tsv.gz"
+if (!dir.exists("PMC"))
+    dir.create("PMC")
 
-if (!file.exists(fileListTmpFilePath)) {
-    # These contain publication timestamps.
-    urls = paste0("https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/txt/oa_comm_txt.PMC0",
-                c("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10"),
-                "xxxxxx.baseline.2023-12-17.filelist.txt")
+fileListFilePath = "PMC/PMC_File_List.tsv.gz"
 
-    read_tsv(urls, col_types = "cccTc") %>%
-      filter(Retracted == "no") %>%
-      filter(License == "CC BY") %>%
-      dplyr::rename(PMCID = AccessionID, Timestamp = `LastUpdated (YYYY-MM-DD HH:MM:SS)`) %>%
-      select(PMCID, Timestamp) %>%
-      write_tsv(fileListTmpFilePath)
-    # 3,621,654 articles
-
-    # These contain the path where the individual details can be found.
+if (!file.exists(fileListFilePath)) {
     read_tsv("https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_comm_use_file_list.txt", skip=1, col_names=FALSE) %>%
         dplyr::rename(File_Path = X1, Citation = X2, PMCID = X3, PMID = X4, License = X5) %>%
         filter(License == "CC BY") %>%
         select(-License) %>%
-        write_tsv(fileListTmpFilePath2)
-    # 3,807,800 articles
-    # 2024-03-15 10:23:02
+        mutate(Publication_Date = str_extract(Citation, "\\d\\d\\d\\d [A-Z][a-z][a-z] \\d{1,2}")) %>%
+        filter(!is.na(Publication_Date)) %>%
+        mutate(Publication_Date = as.Date(Publication_Date, format = "%Y %b %d")) %>%
+        mutate(Publication_Year = year(Publication_Date)) %>%
+        filter(Publication_Year >= 2012 & Publication_Year <= 2022) %>%
+        mutate(Journal = str_extract(Citation, "(.+)\\. \\d{4} ", group=1)) %>%
+        select(-Citation) -> candidates
 
-    read_tsv(fileListTmpFilePath) %>%
-      inner_join(read_tsv(fileListTmpFilePath2)) %>%
-      write_tsv(fileListTmpFilePath3)
-    # 3,621,508 articles after inner join
+    print(nrow(candidates))
+
+    slice_sample(candidates, n = 2000) %>%
+        arrange(Publication_Date) %>%
+        write_tsv(fileListFilePath)
+
+    # 2,730,105 article candidates
 }
 
-read_tsv(fileListTmpFilePath3) %>%
-    slice_sample(n = 2000) %>%
-    arrange(Timestamp) %>%
-    print()
+# TODO: Ignore journals and articles with "review" in the title.
+# TODO: Parse through the metadata. Does anything indicate article type? Yes.
+# TODO: Download some extras to make sure we have at least 2000 after final filtering.
 
-#TODO: Randomly select articles. Retrieve images.
+selectedArticles = read_tsv(fileListFilePath)
+
+# Retrieve images.
+for (i in 1:nrow(selectedArticles)) {
+    filePath = pull(selectedArticles[i,], File_Path)
+    url = paste0("https://ftp.ncbi.nlm.nih.gov/pub/pmc/", filePath)
+
+    pmcid = pull(selectedArticles[i,], PMCID)
+    print(pmcid)
+
+    tmpDirPath = paste0("/tmp/", pmcid)
+    tmpFilePath = paste0(tmpDirPath, "/", basename(url))
+
+    if (!file.exists(tmpFilePath)) {
+        unlink(tmpDirPath)
+        dir.create(tmpDirPath, showWarnings=FALSE)
+
+        download.file(url, tmpFilePath)
+#        untar(tarfile = tmpFilePath, exdir = tmpDirPath)
+
+#        jpgFilePaths = Sys.glob(paste0(tmpDirPath, "/", pmcid, "/*.jpg"))
+
+#        print(length(jpgFilePaths))
+#        unlink(tmpDirPath)
+
+#        break
+    }
+}
