@@ -1,0 +1,786 @@
+Sending build context to Docker daemon  443.1MB
+Step 1/11 : FROM bioconductor/bioconductor_docker:RELEASE_3_15
+ ---> 75cc0e27e8ea
+Step 2/11 : RUN R -e "install.packages(c('httr', 'magick', 'spacesXYZ', 'tidyverse', 'xml2'), repos='https://cloud.r-project.org')"
+ ---> Using cache
+ ---> ecefe3b6d376
+Step 3/11 : RUN R -e "install.packages(c('foreach', 'doParallel'), repos='https://cloud.r-project.org')"
+ ---> Using cache
+ ---> 5c0ecc8d06a0
+Step 4/11 : RUN R -e "install.packages(c('colorspace', 'knitr', 'grid', 'pROC', 'spacesXYZ', 'yardstick'), repos='https://cloud.r-project.org')"
+ ---> Using cache
+ ---> 640bcf37eae8
+Step 5/11 : RUN sed -i 's/1GiB/8GiB/g' /etc/ImageMagick-6/policy.xml
+ ---> Using cache
+ ---> e29c5f2e44cb
+Step 6/11 : WORKDIR /shared_dir
+ ---> Using cache
+ ---> c0474d3603b0
+Step 7/11 : ADD requirements.txt /shared_dir/
+ ---> Using cache
+ ---> 0f79d452a888
+Step 8/11 : RUN python3 -m pip install --upgrade pip  && python3 -m pip install -r /shared_dir/requirements.txt
+ ---> Using cache
+ ---> cc885b665757
+Step 9/11 : ADD *.sh /shared_dir/
+ ---> 40076089d281
+Step 10/11 : ENTRYPOINT /shared_dir/exec_inside_docker.sh
+ ---> Running in 717e5aca77d2
+Removing intermediate container 717e5aca77d2
+ ---> 661fbc0003f4
+Step 11/11 : ADD *.R /shared_dir/
+ ---> 09cc04a00052
+Successfully built 09cc04a00052
+Successfully tagged srp33/bio_image_colorblindness:version1
+Successfully tagged srp33/bio_image_colorblindness:latest
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.0
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+Rows: 5000 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: "\t"
+chr  (4): File_Path, PMCID, PMID, Journal
+dbl  (1): Publication_Year
+date (1): Publication_Date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+[1] "No matching figures for PMC3286370."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/36/d8/PMC3395821.tar.gz'
+Content type 'application/x-gzip' length 3446936 bytes (3.3 MB)
+==================================================
+downloaded 3.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/78/56/PMC3306990.tar.gz'
+Content type 'application/x-gzip' length 2157652 bytes (2.1 MB)
+==================================================
+downloaded 2.1 MB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/ad/a3/PMC3281117.tar.gz'
+Content type 'application/x-gzip' length 13800497 bytes (13.2 MB)
+==================================================
+downloaded 13.2 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/7b/32/PMC3281101.tar.gz'
+Content type 'application/x-gzip' length 1043460 bytes (1019 KB)
+==================================================
+downloaded 1019 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/a2/80/PMC3307475.tar.gz'
+Content type 'application/x-gzip' length 464758 bytes (453 KB)
+==================================================
+downloaded 453 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/72/07/PMC3376553.tar.gz'
+Content type 'application/x-gzip' length 1636848 bytes (1.6 MB)
+==================================================
+downloaded 1.6 MB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/25/40/PMC3311060.tar.gz'
+Content type 'application/x-gzip' length 1371353 bytes (1.3 MB)
+==================================================
+downloaded 1.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f9/24/PMC4021883.tar.gz'
+Content type 'application/x-gzip' length 3574431 bytes (3.4 MB)
+==================================================
+downloaded 3.4 MB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/9d/ff/PMC3312272.tar.gz'
+Content type 'application/x-gzip' length 1084013 bytes (1.0 MB)
+==================================================
+downloaded 1.0 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f3/2f/PMC4980732.tar.gz'
+Content type 'application/x-gzip' length 317831 bytes (310 KB)
+==================================================
+downloaded 310 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/05/ca/PMC3295752.tar.gz'
+Content type 'application/x-gzip' length 8860946 bytes (8.5 MB)
+==================================================
+downloaded 8.5 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/29/16/PMC3368782.tar.gz'
+Content type 'application/x-gzip' length 9751205 bytes (9.3 MB)
+==================================================
+downloaded 9.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/51/2d/PMC3299776.tar.gz'
+Content type 'application/x-gzip' length 4580027 bytes (4.4 MB)
+==================================================
+downloaded 4.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/cf/97/PMC3395858.tar.gz'
+Content type 'application/x-gzip' length 5986462 bytes (5.7 MB)
+==================================================
+downloaded 5.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/4d/8a/PMC3303836.tar.gz'
+Content type 'application/x-gzip' length 3890128 bytes (3.7 MB)
+==================================================
+downloaded 3.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/ce/55/PMC3359271.tar.gz'
+Content type 'application/x-gzip' length 525444 bytes (513 KB)
+==================================================
+downloaded 513 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/bb/a5/PMC3363907.tar.gz'
+Content type 'application/x-gzip' length 6052374 bytes (5.8 MB)
+==================================================
+downloaded 5.8 MB
+
+[1] "Not a research article: abstract."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/46/6b/PMC3317753.tar.gz'
+Content type 'application/x-gzip' length 621278 bytes (606 KB)
+==================================================
+downloaded 606 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8d/cd/PMC3310836.tar.gz'
+Content type 'application/x-gzip' length 5610531 bytes (5.4 MB)
+==================================================
+downloaded 5.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/88/7f/PMC3318013.tar.gz'
+Content type 'application/x-gzip' length 1619417 bytes (1.5 MB)
+==================================================
+downloaded 1.5 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/5a/1d/PMC3323476.tar.gz'
+Content type 'application/x-gzip' length 411588 bytes (401 KB)
+==================================================
+downloaded 401 KB
+
+[1] "Not a research article: abstract."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/d8/2e/PMC3328331.tar.gz'
+Content type 'application/x-gzip' length 411056 bytes (401 KB)
+==================================================
+downloaded 401 KB
+
+[1] "No matching figures for PMC3328331."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/d3/71/PMC3328459.tar.gz'
+Content type 'application/x-gzip' length 307202 bytes (300 KB)
+==================================================
+downloaded 300 KB
+
+[1] "No matching figures for PMC3328459."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f3/83/PMC3334884.tar.gz'
+Content type 'application/x-gzip' length 6598731 bytes (6.3 MB)
+==================================================
+downloaded 6.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f7/11/PMC3338420.tar.gz'
+Content type 'application/x-gzip' length 1753702 bytes (1.7 MB)
+==================================================
+downloaded 1.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/d6/e7/PMC3382798.tar.gz'
+Content type 'application/x-gzip' length 259293 bytes (253 KB)
+==================================================
+downloaded 253 KB
+
+[1] "No matching figures for PMC3382798."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/e0/9d/PMC3430594.tar.gz'
+Content type 'application/x-gzip' length 967198 bytes (944 KB)
+==================================================
+downloaded 944 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/bd/00/PMC3763647.tar.gz'
+Content type 'application/x-gzip' length 951759 bytes (929 KB)
+==================================================
+downloaded 929 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/e5/ff/PMC3386626.tar.gz'
+Content type 'application/x-gzip' length 961334 bytes (938 KB)
+==================================================
+downloaded 938 KB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/3d/3f/PMC3361162.tar.gz'
+Content type 'application/x-gzip' length 882813 bytes (862 KB)
+==================================================
+downloaded 862 KB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/5b/d6/PMC4093318.tar.gz'
+Content type 'application/x-gzip' length 1648404 bytes (1.6 MB)
+==================================================
+downloaded 1.6 MB
+
+[1] "Not a research article: case-report."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f9/82/PMC3528639.tar.gz'
+Content type 'application/x-gzip' length 631279 bytes (616 KB)
+==================================================
+downloaded 616 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/cb/ac/PMC3344921.tar.gz'
+Content type 'application/x-gzip' length 1192265 bytes (1.1 MB)
+==================================================
+downloaded 1.1 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/cc/e7/PMC3434094.tar.gz'
+Content type 'application/x-gzip' length 2263116 bytes (2.2 MB)
+==================================================
+downloaded 2.2 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/e7/ea/PMC3365136.tar.gz'
+Content type 'application/x-gzip' length 3695122 bytes (3.5 MB)
+==================================================
+downloaded 3.5 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/7f/92/PMC3349652.tar.gz'
+Content type 'application/x-gzip' length 1420391 bytes (1.4 MB)
+==================================================
+downloaded 1.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/db/a0/PMC3359674.tar.gz'
+Content type 'application/x-gzip' length 674908 bytes (659 KB)
+==================================================
+downloaded 659 KB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/c4/96/PMC3386389.tar.gz'
+Content type 'application/x-gzip' length 644474 bytes (629 KB)
+==================================================
+downloaded 629 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/ea/c0/PMC3412165.tar.gz'
+Content type 'application/x-gzip' length 102999 bytes (100 KB)
+==================================================
+downloaded 100 KB
+
+[1] "No matching figures for PMC3412165."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/49/9a/PMC3420587.tar.gz'
+Content type 'application/x-gzip' length 2780668 bytes (2.7 MB)
+==================================================
+downloaded 2.7 MB
+
+[1] "Not a research article: case-report."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/17/dc/PMC3360631.tar.gz'
+Content type 'application/x-gzip' length 202889 bytes (198 KB)
+==================================================
+downloaded 198 KB
+
+[1] "No matching figures for PMC3360631."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/c5/32/PMC3420316.tar.gz'
+Content type 'application/x-gzip' length 1353395 bytes (1.3 MB)
+==================================================
+downloaded 1.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/10/47/PMC3414743.tar.gz'
+Content type 'application/x-gzip' length 298105 bytes (291 KB)
+==================================================
+downloaded 291 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/0d/6b/PMC3364996.tar.gz'
+Content type 'application/x-gzip' length 988962 bytes (965 KB)
+==================================================
+downloaded 965 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8e/bf/PMC3487980.tar.gz'
+Content type 'application/x-gzip' length 663364 bytes (647 KB)
+==================================================
+downloaded 647 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8d/ff/PMC3393259.tar.gz'
+Content type 'application/x-gzip' length 1097191 bytes (1.0 MB)
+==================================================
+downloaded 1.0 MB
+
+[1] "No matching figures for PMC3393259."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/7f/d5/PMC3366990.tar.gz'
+Content type 'application/x-gzip' length 2984923 bytes (2.8 MB)
+==================================================
+downloaded 2.8 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/31/78/PMC3366934.tar.gz'
+Content type 'application/x-gzip' length 7087009 bytes (6.8 MB)
+==================================================
+downloaded 6.8 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/aa/c7/PMC3441813.tar.gz'
+Content type 'application/x-gzip' length 2807519 bytes (2.7 MB)
+==================================================
+downloaded 2.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/b1/64/PMC3494523.tar.gz'
+Content type 'application/x-gzip' length 2004034 bytes (1.9 MB)
+==================================================
+downloaded 1.9 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/70/51/PMC3407724.tar.gz'
+Content type 'application/x-gzip' length 169340 bytes (165 KB)
+==================================================
+downloaded 165 KB
+
+[1] "No matching figures for PMC3407724."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/eb/22/PMC3428520.tar.gz'
+Content type 'application/x-gzip' length 490005 bytes (478 KB)
+==================================================
+downloaded 478 KB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/a3/0f/PMC3373680.tar.gz'
+Content type 'application/x-gzip' length 82368 bytes (80 KB)
+==================================================
+downloaded 80 KB
+
+[1] "Not a research article: abstract."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/22/fe/PMC3385657.tar.gz'
+Content type 'application/x-gzip' length 590243 bytes (576 KB)
+==================================================
+downloaded 576 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/47/53/PMC3395892.tar.gz'
+Content type 'application/x-gzip' length 1483213 bytes (1.4 MB)
+==================================================
+downloaded 1.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/17/a1/PMC3405446.tar.gz'
+Content type 'application/x-gzip' length 119485 bytes (116 KB)
+==================================================
+downloaded 116 KB
+
+[1] "No matching figures for PMC3405446."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/69/36/PMC3415061.tar.gz'
+Content type 'application/x-gzip' length 579625 bytes (566 KB)
+==================================================
+downloaded 566 KB
+
+[1] "Not a research article: case-report."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f3/d9/PMC3499284.tar.gz'
+Content type 'application/x-gzip' length 674037 bytes (658 KB)
+==================================================
+downloaded 658 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/86/43/PMC3394022.tar.gz'
+Content type 'application/x-gzip' length 2177218 bytes (2.1 MB)
+==================================================
+downloaded 2.1 MB
+
+[1] "No matching figures for PMC3394022."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8e/db/PMC3387165.tar.gz'
+Content type 'application/x-gzip' length 5275179 bytes (5.0 MB)
+==================================================
+downloaded 5.0 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/9a/80/PMC3392734.tar.gz'
+Content type 'application/x-gzip' length 193072 bytes (188 KB)
+==================================================
+downloaded 188 KB
+
+[1] "Not a research article: brief-report."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/05/98/PMC3426670.tar.gz'
+Content type 'application/x-gzip' length 436925 bytes (426 KB)
+==================================================
+downloaded 426 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/b8/38/PMC3399369.tar.gz'
+Content type 'application/x-gzip' length 1341198 bytes (1.3 MB)
+==================================================
+downloaded 1.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/c8/06/PMC6268078.tar.gz'
+Content type 'application/x-gzip' length 240123 bytes (234 KB)
+==================================================
+downloaded 234 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/d9/64/PMC3394122.tar.gz'
+Content type 'application/x-gzip' length 107883 bytes (105 KB)
+==================================================
+downloaded 105 KB
+
+[1] "Not a research article: editorial."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/c6/13/PMC3398011.tar.gz'
+Content type 'application/x-gzip' length 2303962 bytes (2.2 MB)
+==================================================
+downloaded 2.2 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/c1/72/PMC3398023.tar.gz'
+Content type 'application/x-gzip' length 1642057 bytes (1.6 MB)
+==================================================
+downloaded 1.6 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/47/44/PMC3398969.tar.gz'
+Content type 'application/x-gzip' length 3483225 bytes (3.3 MB)
+==================================================
+downloaded 3.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/3b/6d/PMC3139871.tar.gz'
+Content type 'application/x-gzip' length 559271 bytes (546 KB)
+==================================================
+downloaded 546 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/24/2f/PMC3399802.tar.gz'
+Content type 'application/x-gzip' length 2395015 bytes (2.3 MB)
+==================================================
+downloaded 2.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/c5/31/PMC3414149.tar.gz'
+Content type 'application/x-gzip' length 1137709 bytes (1.1 MB)
+==================================================
+downloaded 1.1 MB
+
+[1] "No matching figures for PMC3414149."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/4a/e7/PMC3412763.tar.gz'
+Content type 'application/x-gzip' length 1122676 bytes (1.1 MB)
+==================================================
+downloaded 1.1 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/6a/66/PMC3406075.tar.gz'
+Content type 'application/x-gzip' length 38863867 bytes (37.1 MB)
+==================================================
+downloaded 37.1 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/c9/c4/PMC3407049.tar.gz'
+Content type 'application/x-gzip' length 369099 bytes (360 KB)
+==================================================
+downloaded 360 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/87/1d/PMC3413609.tar.gz'
+Content type 'application/x-gzip' length 402285 bytes (392 KB)
+==================================================
+downloaded 392 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/93/f5/PMC3410909.tar.gz'
+Content type 'application/x-gzip' length 2124148 bytes (2.0 MB)
+==================================================
+downloaded 2.0 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/e9/7c/PMC3411730.tar.gz'
+Content type 'application/x-gzip' length 392352 bytes (383 KB)
+==================================================
+downloaded 383 KB
+
+[1] "No matching figures for PMC3411730."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/84/a5/PMC3411709.tar.gz'
+Content type 'application/x-gzip' length 385516 bytes (376 KB)
+==================================================
+downloaded 376 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/b4/65/PMC3412807.tar.gz'
+Content type 'application/x-gzip' length 8852432 bytes (8.4 MB)
+==================================================
+downloaded 8.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/fd/d3/PMC3476974.tar.gz'
+Content type 'application/x-gzip' length 3440875 bytes (3.3 MB)
+==================================================
+downloaded 3.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f7/e6/PMC3570365.tar.gz'
+Content type 'application/x-gzip' length 165064 bytes (161 KB)
+==================================================
+downloaded 161 KB
+
+[1] "No matching figures for PMC3570365."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8c/36/PMC3462128.tar.gz'
+Content type 'application/x-gzip' length 1511522 bytes (1.4 MB)
+==================================================
+downloaded 1.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/98/31/PMC3414458.tar.gz'
+Content type 'application/x-gzip' length 5040206 bytes (4.8 MB)
+==================================================
+downloaded 4.8 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/cb/a2/PMC3503704.tar.gz'
+Content type 'application/x-gzip' length 2930979 bytes (2.8 MB)
+==================================================
+downloaded 2.8 MB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8a/45/PMC3472888.tar.gz'
+Content type 'application/x-gzip' length 1102186 bytes (1.1 MB)
+==================================================
+downloaded 1.1 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/eb/25/PMC3423430.tar.gz'
+Content type 'application/x-gzip' length 7003949 bytes (6.7 MB)
+==================================================
+downloaded 6.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/e0/22/PMC3426807.tar.gz'
+Content type 'application/x-gzip' length 3033895 bytes (2.9 MB)
+==================================================
+downloaded 2.9 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/ab/16/PMC3426786.tar.gz'
+Content type 'application/x-gzip' length 580110 bytes (566 KB)
+==================================================
+downloaded 566 KB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/4e/15/PMC3429458.tar.gz'
+Content type 'application/x-gzip' length 1357728 bytes (1.3 MB)
+==================================================
+downloaded 1.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f7/b8/PMC3526419.tar.gz'
+Content type 'application/x-gzip' length 2827923 bytes (2.7 MB)
+==================================================
+downloaded 2.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8c/84/PMC3492059.tar.gz'
+Content type 'application/x-gzip' length 549234 bytes (536 KB)
+==================================================
+downloaded 536 KB
+
+[1] "Not a research article: case-report."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/56/e3/PMC3478824.tar.gz'
+Content type 'application/x-gzip' length 963458 bytes (940 KB)
+==================================================
+downloaded 940 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/04/85/PMC3428839.tar.gz'
+Content type 'application/x-gzip' length 530673 bytes (518 KB)
+==================================================
+downloaded 518 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/72/27/PMC3472727.tar.gz'
+Content type 'application/x-gzip' length 409294 bytes (399 KB)
+==================================================
+downloaded 399 KB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/e6/bb/PMC4144267.tar.gz'
+Content type 'application/x-gzip' length 542721 bytes (530 KB)
+==================================================
+downloaded 530 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f5/92/PMC4461156.tar.gz'
+Content type 'application/x-gzip' length 1114012 bytes (1.1 MB)
+==================================================
+downloaded 1.1 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/42/f4/PMC3438161.tar.gz'
+Content type 'application/x-gzip' length 5431866 bytes (5.2 MB)
+==================================================
+downloaded 5.2 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/e8/38/PMC3449154.tar.gz'
+Content type 'application/x-gzip' length 1608008 bytes (1.5 MB)
+==================================================
+downloaded 1.5 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/5e/1a/PMC3461290.tar.gz'
+Content type 'application/x-gzip' length 1751478 bytes (1.7 MB)
+==================================================
+downloaded 1.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/68/98/PMC3461630.tar.gz'
+Content type 'application/x-gzip' length 797142 bytes (778 KB)
+==================================================
+downloaded 778 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/67/37/PMC3462178.tar.gz'
+Content type 'application/x-gzip' length 2814114 bytes (2.7 MB)
+==================================================
+downloaded 2.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f5/17/PMC3472927.tar.gz'
+Content type 'application/x-gzip' length 5232057 bytes (5.0 MB)
+==================================================
+downloaded 5.0 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/88/68/PMC3464234.tar.gz'
+Content type 'application/x-gzip' length 909353 bytes (888 KB)
+==================================================
+downloaded 888 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/23/1f/PMC3468541.tar.gz'
+Content type 'application/x-gzip' length 1078653 bytes (1.0 MB)
+==================================================
+downloaded 1.0 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/cb/7c/PMC3476838.tar.gz'
+Content type 'application/x-gzip' length 552836 bytes (539 KB)
+==================================================
+downloaded 539 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f1/2b/PMC3468597.tar.gz'
+Content type 'application/x-gzip' length 6776048 bytes (6.5 MB)
+==================================================
+downloaded 6.5 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/b1/e0/PMC3470548.tar.gz'
+Content type 'application/x-gzip' length 2409254 bytes (2.3 MB)
+==================================================
+downloaded 2.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8c/b4/PMC3520781.tar.gz'
+Content type 'application/x-gzip' length 1219136 bytes (1.2 MB)
+==================================================
+downloaded 1.2 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/4f/4e/PMC3515131.tar.gz'
+Content type 'application/x-gzip' length 1345225 bytes (1.3 MB)
+==================================================
+downloaded 1.3 MB
+
+[1] "No matching figures for PMC3515131."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/b9/da/PMC3488476.tar.gz'
+Content type 'application/x-gzip' length 184556 bytes (180 KB)
+==================================================
+downloaded 180 KB
+
+[1] "No matching figures for PMC3488476."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/7e/5d/PMC3440980.tar.gz'
+Content type 'application/x-gzip' length 336713 bytes (328 KB)
+==================================================
+downloaded 328 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f6/2c/PMC3538694.tar.gz'
+Content type 'application/x-gzip' length 777130 bytes (758 KB)
+==================================================
+downloaded 758 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/18/23/PMC3557161.tar.gz'
+Content type 'application/x-gzip' length 379852 bytes (370 KB)
+==================================================
+downloaded 370 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/12/5c/PMC3542684.tar.gz'
+Content type 'application/x-gzip' length 270175 bytes (263 KB)
+==================================================
+downloaded 263 KB
+
+[1] "Not a research article: abstract."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/9d/23/PMC3529925.tar.gz'
+Content type 'application/x-gzip' length 188286 bytes (183 KB)
+==================================================
+downloaded 183 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/06/66/PMC3495340.tar.gz'
+Content type 'application/x-gzip' length 1349320 bytes (1.3 MB)
+==================================================
+downloaded 1.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/00/6e/PMC3560539.tar.gz'
+Content type 'application/x-gzip' length 244158 bytes (238 KB)
+==================================================
+downloaded 238 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/30/d5/PMC3500310.tar.gz'
+Content type 'application/x-gzip' length 4493247 bytes (4.3 MB)
+==================================================
+downloaded 4.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/77/ff/PMC3500725.tar.gz'
+Content type 'application/x-gzip' length 113034 bytes (110 KB)
+==================================================
+downloaded 110 KB
+
+[1] "Not a research article: abstract."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f0/c1/PMC3521198.tar.gz'
+Content type 'application/x-gzip' length 2466979 bytes (2.4 MB)
+==================================================
+downloaded 2.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8a/e1/PMC3507698.tar.gz'
+Content type 'application/x-gzip' length 2204940 bytes (2.1 MB)
+==================================================
+downloaded 2.1 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/56/74/PMC3511267.tar.gz'
+Content type 'application/x-gzip' length 1400198 bytes (1.3 MB)
+==================================================
+downloaded 1.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/1d/34/PMC3558460.tar.gz'
+Content type 'application/x-gzip' length 1492670 bytes (1.4 MB)
+==================================================
+downloaded 1.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/63/44/PMC3504271.tar.gz'
+Content type 'application/x-gzip' length 2352904 bytes (2.2 MB)
+==================================================
+downloaded 2.2 MB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/1b/ec/PMC3520789.tar.gz'
+Content type 'application/x-gzip' length 1833002 bytes (1.7 MB)
+==================================================
+downloaded 1.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/97/2d/PMC3515605.tar.gz'
+Content type 'application/x-gzip' length 3458880 bytes (3.3 MB)
+==================================================
+downloaded 3.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/94/e2/PMC3523551.tar.gz'
+Content type 'application/x-gzip' length 1505269 bytes (1.4 MB)
+==================================================
+downloaded 1.4 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/8f/01/PMC3538061.tar.gz'
+Content type 'application/x-gzip' length 323137 bytes (315 KB)
+==================================================
+downloaded 315 KB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/ef/99/PMC3674628.tar.gz'
+Content type 'application/x-gzip' length 19097384 bytes (18.2 MB)
+==================================================
+downloaded 18.2 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/f9/1d/PMC3518239.tar.gz'
+Content type 'application/x-gzip' length 87333 bytes (85 KB)
+==================================================
+downloaded 85 KB
+
+[1] "Not a research article: abstract."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/d0/b4/PMC3523595.tar.gz'
+Content type 'application/x-gzip' length 1562141 bytes (1.5 MB)
+==================================================
+downloaded 1.5 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/6d/44/PMC3580410.tar.gz'
+Content type 'application/x-gzip' length 3502894 bytes (3.3 MB)
+==================================================
+downloaded 3.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/ea/6e/PMC3547780.tar.gz'
+Content type 'application/x-gzip' length 2207066 bytes (2.1 MB)
+==================================================
+downloaded 2.1 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/df/a3/PMC4393008.tar.gz'
+Content type 'application/x-gzip' length 2400793 bytes (2.3 MB)
+==================================================
+downloaded 2.3 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/96/69/PMC3565262.tar.gz'
+Content type 'application/x-gzip' length 1279321 bytes (1.2 MB)
+==================================================
+downloaded 1.2 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/3b/75/PMC3530599.tar.gz'
+Content type 'application/x-gzip' length 1738261 bytes (1.7 MB)
+==================================================
+downloaded 1.7 MB
+
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/a3/39/PMC3542017.tar.gz'
+Content type 'application/x-gzip' length 206148 bytes (201 KB)
+==================================================
+downloaded 201 KB
+
+[1] "Not a research article: review-article."
+trying URL 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_package/b3/c1/PMC3560861.tar.gz'
+Content type 'application/x-gzip' length 8963441 bytes (8.5 MB)
+==================================================
+downloaded 8.5 MB
+
+Error in file(con, "r") : invalid 'description' argument
+Calls: paste
+Execution halted
