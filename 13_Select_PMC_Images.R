@@ -1,4 +1,4 @@
-# I obtained the articles as of March 19, 2024
+# I obtained the articles as of March 21, 2024
 # They are from the PMC OA Subset - Commercial Use
 # I did not use the incremental files.
 # So they were selected from December 17, 2023 and earlier.
@@ -29,13 +29,21 @@ if (!file.exists(tmpArticleFilePath)) {
 candidateArticles = read_tsv(tmpArticleFilePath)
 
 numArticles = nrow(candidateArticles)
-# 2,730,205 article candidates
+# 2,730,256 article candidates
 
 # We randomly select enough that we will be able to get 2,000 after filtering.
-candidateArticles = slice_sample(candidateArticles, n = 2000)
+candidateArticles = slice_sample(candidateArticles, n = 5000)
 
 # Retrieve images.
 for (i in 1:nrow(candidateArticles)) {
+    numSaved = length(Sys.glob("PMC_Images/PMC*/data.tsv"))
+
+    if (numSaved >= 2000) {
+        break
+    } else {
+        print(str_c(numSaved, " saved."))
+    }
+
     filePath = pull(candidateArticles[i,], File_Path)
     url = str_c("https://ftp.ncbi.nlm.nih.gov/pub/pmc/", filePath)
 
@@ -69,6 +77,7 @@ for (i in 1:nrow(candidateArticles)) {
         next
     }
 
+    options(timeout=300)
     download.file(url, tmpFilePath)
     untar(tarfile = tmpFilePath, exdir = tmpDirPath)
 
@@ -93,6 +102,7 @@ for (i in 1:nrow(candidateArticles)) {
 
     if (length(jpg_file_paths) == 0) {
         print(str_c("No matching figures for ", pmcid, "."))
+
         file.create(ignore_file_path)
         unlink(tmpDirPath, recursive=TRUE)
         next
@@ -105,14 +115,6 @@ for (i in 1:nrow(candidateArticles)) {
 
     outRow = tibble(PMCID=pmcid, PMID=pmid, Title=article_title, Journal=journal_title, Publication_Date=publicationDate, File_Path=str_c("PMC_Images/", pmcid, "/", basename(dest_jpg_file_path)))
     write_tsv(outRow, str_c("PMC_Images/", pmcid, "/data.tsv"))
-
-    numSaved = length(Sys.glob("PMC_Images/PMC*/data.tsv"))
-
-    if (numSaved == 2000) {
-        break
-    } else {
-        print(str_c(numSaved, " saved."))
-    }
 }
 
 read_tsv(Sys.glob("PMC_Images/PMC*/data.tsv")) %>%
