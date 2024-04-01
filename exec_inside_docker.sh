@@ -85,5 +85,7 @@ set -o errexit
 
 #tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir
 
-#Rscript 13_Select_PMC_Images.R
+Rscript 13_Select_PMC_Images.R
+
+rm -f PMC_Images.tar.gz
 tar -zcvf PMC_Images.tar.gz PMC*

@@ -10,8 +10,8 @@ docker build -t ${image_name}:version$(cat VERSION) \
 
 mkdir -p TempResults
 
-#  -i -t \
 docker run \
+  -i -t \
   --rm \
   --name ${container_name} \
   --user $(id -u):$(id -g) \

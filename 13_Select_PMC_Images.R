@@ -3,11 +3,15 @@
 # I did not use the incremental files.
 # So they were selected from December 17, 2023 and earlier.
 
+library(colorspace)
+library(magick)
 library(tidyverse)
 library(xml2)
 
+source("Functions.R")
+
 set.seed(0)
-dir.create("PMC_Images", showWarnings=FALSE, recursive=TRUE)
+dir.create("PMC_Images_Temp", showWarnings=FALSE, recursive=TRUE)
 
 tmpArticleFilePath = "/tmp/Articles.tsv.gz"
 
@@ -36,7 +40,7 @@ candidateArticles = slice_sample(candidateArticles, n = 5000)
 
 # Retrieve images.
 for (i in 1:nrow(candidateArticles)) {
-    numSaved = length(Sys.glob("PMC_Images/PMC*/data.tsv"))
+    numSaved = length(Sys.glob("PMC_Images_Temp/PMC*/data.tsv"))
 
     if (numSaved >= 2000) {
         break
@@ -60,7 +64,7 @@ for (i in 1:nrow(candidateArticles)) {
     unlink(tmpDirPath, recursive=TRUE)
     dir.create(tmpDirPath, showWarnings=FALSE, recursive=TRUE)
 
-    dest_dir_path = str_c("PMC_Images/", pmcid)
+    dest_dir_path = str_c("PMC_Images_Temp/", pmcid)
     dir.create(dest_dir_path, showWarnings=FALSE, recursive=TRUE)
     ignore_file_path = str_c(dest_dir_path, "/IGNORE")
 
@@ -70,7 +74,7 @@ for (i in 1:nrow(candidateArticles)) {
         next
     }
 
-    dest_jpg_file_pattern = str_c("PMC_Images/", pmcid, "/*.jpg")
+    dest_jpg_file_pattern = str_c("PMC_Images_Temp/", pmcid, "/deut.jpg")
     if (length(Sys.glob(dest_jpg_file_pattern))) {
         print(str_c("Already saved .jpg file: ", pmcid))
         unlink(tmpDirPath, recursive=TRUE)
@@ -86,6 +90,8 @@ for (i in 1:nrow(candidateArticles)) {
     xml = str_c(suppressWarnings(readLines(xmlFilePath)), collapse = " ")
     journal_title = str_extract(xml, "<journal-title>(.+?)</journal-title>", group=1)
     article_title = str_extract(xml, "<article-title>(.+?)</article-title>", group=1)
+    # One time there was an inline formula in an article title. This removes that.
+    article_title = str_replace_all(article_title, "<.+>", "")
     article_type = str_extract(xml, " article-type=\"(.+?)\".+?>", group=1)
 
     if (article_type != "research-article") {
@@ -109,22 +115,43 @@ for (i in 1:nrow(candidateArticles)) {
     }
 
     selected_jpg_file_path = sample(jpg_file_paths, size=1)
-    dest_jpg_file_path = str_c(dest_dir_path, "/", basename(selected_jpg_file_path))
-    file.copy(selected_jpg_file_path, dest_jpg_file_path)
-    unlink(tmpDirPath, recursive=TRUE)
+    original_jpg_file_path = str_c(dest_dir_path, "/original.jpg")
+    deut_jpg_file_path = str_c(dest_dir_path, "/deut.jpg")
 
-    outRow = tibble(PMCID=pmcid, PMID=pmid, Title=article_title, Journal=journal_title, Publication_Date=publicationDate, File_Path=str_c("PMC_Images/", pmcid, "/", basename(dest_jpg_file_path)))
-    write_tsv(outRow, str_c("PMC_Images/", pmcid, "/data.tsv"))
+    file.copy(selected_jpg_file_path, original_jpg_file_path)
+
+    tryCatch(
+        {
+            create_simulated_image(selected_jpg_file_path, deut_jpg_file_path)
+            unlink(tmpDirPath, recursive=TRUE)
+            outRow = tibble(PMCID=pmcid, PMID=pmid, Title=article_title, Journal=journal_title, Publication_Date=publicationDate, Dir_Path=str_c("PMC_Images_Temp/", pmcid))
+
+            write_tsv(outRow, str_c("PMC_Images_Temp/", pmcid, "/data.tsv"))
+        },
+        error = function(cond) {
+            print(str_c("Unable to parse image using ImageMagick at ", selected_jpg_file_path, "."))
+            file.create(ignore_file_path)
+            file.remove(original_jpg_file_path)
+            unlink(tmpDirPath, recursive=TRUE)
+        }
+    )
 }
 
-read_tsv(Sys.glob("PMC_Images/PMC*/data.tsv")) %>%
-  write_tsv("PMC_Selected_Articles.tsv")
+selectedArticles = read_tsv(Sys.glob("PMC_Images_Temp/PMC*/data.tsv")) %>%
+  slice_sample(prop = 1.0)
 
-for (filePath in Sys.glob("PMC_Images/PMC*/data.tsv")) {
-  unlink(filePath)
+unlink("PMC_Images", recursive=TRUE)
+
+for (i in 1:nrow(selectedArticles)) {
+    out_dir_path = str_c("PMC_Images/", i)
+    dir.create(out_dir_path, showWarnings=FALSE, recursive=TRUE)
+
+    file.copy(str_c(selectedArticles[i,]$Dir_Path, "/original.jpg"), str_c(out_dir_path, "/original.jpg"))
+    file.copy(str_c(selectedArticles[i,]$Dir_Path, "/deut.jpg"), str_c(out_dir_path, "/deut.jpg"))
 }
 
-for (filePath in Sys.glob("PMC_Images/PMC*/IGNORE")) {
-  unlink(filePath)
-  unlink(dirname(filePath), recursive=TRUE)
-}
+select(selectedArticles, -Dir_Path) %>%
+    mutate(Image_Number = row_number()) %>%
+    write_tsv("PMC_Selected_Articles.tsv")
+
+unlink("PMC_Images_Temp", recursive=TRUE)
