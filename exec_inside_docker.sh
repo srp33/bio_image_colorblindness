@@ -35,7 +35,7 @@ set -o errexit
 
 # I ran this before we had the most recent collection of images, so it is not fully reproducible.
 #Rscript 3A_Sample_Images.R 1000 "ImageSample1000" "ImageSample1000_Metrics.tsv" NULL
-#
+
 #Rscript 3A_Sample_Images.R 4000 "ImageSample1001to5000" "ImageSample1001to5000_Metrics.tsv" "ImageSample1000_Metrics.tsv"
 #Rscript 3A_Sample_Images.R 1000 "ImageSample5001to6000" "ImageSample5001to6000_Metrics.tsv" "ImageSample1000_Metrics.tsv.gz" "ImageSample1001to5000_Metrics.tsv.gz"
 
@@ -76,7 +76,7 @@ set -o errexit
 #python3 7A_Classify_Using_CNN.py > /tmp/7A_Classify_Using_CNN.out 2> /tmp/7A_Classify_Using_CNN.err
 #python3 7B_Collate_CNN_Metrics.py
 
-#Rscript 8_Summarize_Cross_Validation.R
+Rscript 8_Summarize_Cross_Validation.R
 
 #Rscript 9_Analyze_Image_Metrics_Testing.R
 #python3 10_Classify_Using_Metrics_Testing.py
@@ -85,7 +85,7 @@ set -o errexit
 
 #tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir
 
-Rscript 13_Select_PMC_Images.R
+#Rscript 13_Select_PMC_Images.R
 
-rm -f PMC_Images.tar.gz
-tar -zcvf PMC_Images.tar.gz PMC*
+#rm -f PMC_Images.tar.gz
+#tar -zcvf PMC_Images.tar.gz PMC*

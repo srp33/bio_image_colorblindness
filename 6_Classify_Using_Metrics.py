@@ -2,6 +2,7 @@ import sklearn as sk
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import precision_recall_curve, average_precision_score
 from sklearn.metrics import roc_auc_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
@@ -18,10 +19,13 @@ def train_test(model, training_X, training_y, testing_X, testing_y):
     model.fit(training_X, training_y)
     predictions = model.predict_proba(testing_X)
 
-    return roc_auc_score(testing_y, predictions[:,1])
+    auroc = roc_auc_score(testing_y, predictions[:,1])
+    auprc = average_precision_score(testing_y, predictions[:,1])
+
+    return auroc, auprc
 
 with open(out_file_path, "w") as out_file:
-    out_file.write("iteration\tfold\talgorithm\tauroc\n")
+    out_file.write("iteration\tfold\talgorithm\tmetric\tvalue\n")
 
     for iteration in sorted(set(assignments_df["iteration"])):
         for fold in sorted(set(assignments_df["fold"])):
@@ -48,10 +52,14 @@ with open(out_file_path, "w") as out_file:
             training_X = pipeline.fit_transform(training_X)
             testing_X = pipeline.transform(testing_X)
 
-            rf_auroc = train_test(RandomForestClassifier(class_weight="balanced", random_state=iteration*fold), training_X, training_y, testing_X, testing_y)
-            knn_auroc = train_test(KNeighborsClassifier(), training_X, training_y, testing_X, testing_y)
-            lr_auroc = train_test(LogisticRegression(solver='liblinear', class_weight="balanced", random_state=iteration*fold), training_X, training_y, testing_X, testing_y)
+            rf_auroc, rf_auprc = train_test(RandomForestClassifier(class_weight="balanced", random_state=iteration*fold), training_X, training_y, testing_X, testing_y)
+            knn_auroc, knn_auprc = train_test(KNeighborsClassifier(), training_X, training_y, testing_X, testing_y)
+            lr_auroc, lr_auprc = train_test(LogisticRegression(solver='liblinear', class_weight="balanced", random_state=iteration*fold), training_X, training_y, testing_X, testing_y)
 
-            out_file.write(f"{iteration}\t{fold}\tRandom Forests\t{rf_auroc}\n")
-            out_file.write(f"{iteration}\t{fold}\tNearest Neighbors\t{knn_auroc}\n")
-            out_file.write(f"{iteration}\t{fold}\tLogistic Regression\t{lr_auroc}\n")
+            out_file.write(f"{iteration}\t{fold}\tRandom Forests\tAUROC\t{rf_auroc}\n")
+            out_file.write(f"{iteration}\t{fold}\tNearest Neighbors\tAUROC\t{knn_auroc}\n")
+            out_file.write(f"{iteration}\t{fold}\tLogistic Regression\tAUROC\t{lr_auroc}\n")
+
+            out_file.write(f"{iteration}\t{fold}\tRandom Forests\tAUPRC\t{rf_auprc}\n")
+            out_file.write(f"{iteration}\t{fold}\tNearest Neighbors\tAUPRC\t{knn_auprc}\n")
+            out_file.write(f"{iteration}\t{fold}\tLogistic Regression\tAUPRC\t{lr_auprc}\n")
