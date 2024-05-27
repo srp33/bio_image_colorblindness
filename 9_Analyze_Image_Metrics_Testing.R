@@ -109,7 +109,6 @@ classification_data_testing = inner_join(metrics_data, curated_data_testing, by=
 overlapping_image_ids = intersect(pull(classification_data_training, image_id), pull(classification_data_testing, image_id))
 
 filter(classification_data_testing, !(image_id %in% overlapping_image_ids)) %>%
-  View()
   select(-image_id) %>%
   mutate(Class = as.integer(Class) - 1) %>%
   write_tsv("Image_Metrics_Classification_Data_Testing.tsv")
