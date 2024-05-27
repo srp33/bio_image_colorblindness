@@ -1,4 +1,5 @@
 library(pROC)
+library(PRROC)
 library(tidyverse)
 library(writexl)
 
@@ -32,6 +33,14 @@ ggroc(r, color = "darkred") +
   theme_bw(base_size = 18)
 
 save_fig("CNN_Testing_ROC")
+
+# Calculate the Precision-Recall curve
+pr_curve <- pr.curve(scores.class0 = data$probability_unfriendly, weights.class0 = data$label == "Definitely problematic", curve = TRUE)
+
+# Plot the Precision-Recall curve
+plot(pr_curve, col = "black", main = "", auc.main = FALSE)
+
+save_fig("CNN_Testing_AUPRC")
 
 misclassification_summary1 = arrange(data, probability_unfriendly) %>%
   filter(label == "Definitely problematic") %>%
