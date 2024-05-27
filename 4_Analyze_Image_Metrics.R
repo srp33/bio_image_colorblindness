@@ -1,3 +1,4 @@
+library(broom)
 library(knitr)
 library(tidyverse)
 library(randomForest)
@@ -194,7 +195,7 @@ metrics_data = mutate(metrics_data, image_file_name = basename(image_file_path))
 
 ###############################################
 # Evaluate how well the metrics
-# we can predict "colorblind friendly status"
+# can predict "colorblind friendly status"
 # based on the curated results.
 ###############################################
 
@@ -317,7 +318,7 @@ classification_data = select(classification_data, -combined_score) %>%
 write_tsv(classification_data, "Image_Metrics_Classification_Data.tsv")
 
 ###############################################
-# Evaluate trends over time and by subdiscipline.
+# Evaluate trends over time.
 ###############################################
 
 article_data = read_tsv("all_eLife_articles.tsv") %>%
@@ -327,51 +328,67 @@ article_data = read_tsv("all_eLife_articles.tsv") %>%
 
 article_data_year = select(article_data, article_id, year)
 
-article_data_subjects = select(article_data, article_id, subjects) %>%
-  separate(subjects, sep=", ", into=paste0("X", 1:50)) %>%
-  pivot_longer(paste0("X", 1:50), names_to = "ignore", values_to = "subject") %>%
-  filter(!is.na(subject)) %>%
-  select(-ignore)
+collapse_conclusions = function(conclusions) {
+  if ("Definitely problematic" %in% conclusions) {
+    return("Definitely problematic")
+  }
+  
+  return("Definitely okay")
+}
 
+# Summarize to article level
 curated_article_data = separate(curated_data, image_file_name, sep="-", into=c("x", "article_id", "y")) %>%
   select(article_id, conclusion) %>%
-  filter(conclusion %in% c("Definitely okay", "Definitely problematic"))
-
-calc_proportion_problematic = function(count) {
-  n = sum(count)
-  proportion = count[2] / n
-
-  return(paste0(proportion * 100, "|", n))
-}
+  filter(conclusion %in% c("Definitely okay", "Definitely problematic")) %>%
+  group_by(article_id) %>%
+  summarize(conclusion = collapse_conclusions(conclusion)) %>%
+  ungroup()
 
 plot_data_year = inner_join(curated_article_data, article_data_year) %>%
   arrange(year, conclusion) %>%
   group_by(year, conclusion) %>%
   summarize(count = n()) %>%
   ungroup() %>%
-  group_by(year) %>%
-  summarize(tmp = calc_proportion_problematic(count)) %>%
-  ungroup() %>%
-  separate(tmp, into = c("proportion_problematic", "n"), sep="\\|") %>%
-  mutate(label = str_c(year, "\n(n = ", n, ")")) %>%
-  mutate(proportion_problematic = as.double(proportion_problematic)) %>%
-  mutate(year = as.integer(year)) %>%
-  mutate(year_from_baseline = year - min(year) + 1)
+  mutate(year = as.integer(year))
 
-trend_line = lm(proportion_problematic ~ year_from_baseline, data = plot_data_year)
+logistic_data = pivot_wider(plot_data_year, names_from = conclusion, values_from = count) %>%
+  dplyr::rename(okay = `Definitely okay`, problematic = `Definitely problematic`)
 
-p_value = summary(trend_line)$coefficients[2,4]
-p_text = paste0("p = ", round(p_value, 5))
+logistic_model = glm(cbind(okay, problematic) ~ year, family = binomial, data = logistic_data)
+logistic_results = tidy(logistic_model)
+slope = pull(logistic_results, estimate)[2] # 0.103
+p_value = pull(logistic_results, p.value)[2] # 6.76e-8
 
-ggplot(plot_data_year, aes(x = factor(label), y = proportion_problematic)) +
-  geom_col(fill = "#74add1") +
-  geom_abline(slope = coef(trend_line)[[2]], intercept = coef(trend_line)[[1]], color = "#d73027", linetype = "dashed") +
-  xlab("") +
-  ylab("% Definitely problematic") +
-  theme_bw() +
-  geom_text(aes(x = 10, y = 25, label = p_text), hjust = 1, vjust = 1)
+ggplot(plot_data_year, aes(x = factor(year), y = count, fill = conclusion)) +
+  geom_col(position = "dodge") +
+  xlab("Year") +
+  ylab("Count") +
+  labs(fill = "") +
+  theme_bw(base_size = 14) +
+  scale_fill_manual(values = c(`Definitely okay` = "#5aae61", `Definitely problematic` = "#9970ab"))
+#  geom_text(aes(x = 12, y = 450, label = p_value), hjust = 1, vjust = 1)
 
 ggsave("Figures/Proportion_Problematic_Over_Time_barplot.pdf", width=8.5)
+
+###############################################
+# Evaluate trends by subdiscipline.
+###############################################
+
+collapse_subjects = function(subjects) {
+  if (length(subjects) == 1) {
+    return(subjects)
+  } else {
+    return("Multidisciplinary")
+  }
+}
+
+article_data_subjects = select(article_data, article_id, subjects) %>%
+  separate(subjects, sep=", ", into=paste0("X", 1:50)) %>%
+  pivot_longer(paste0("X", 1:50), names_to = "ignore", values_to = "subject") %>%
+  filter(!is.na(subject)) %>%
+  select(-ignore) %>%
+  group_by(article_id) %>%
+  summarize(subject = collapse_subjects(subject))
 
 plot_data_subjects = inner_join(curated_article_data, article_data_subjects, relationship = "many-to-many") %>%
   arrange(subject, conclusion) %>%
@@ -397,9 +414,9 @@ ggplot(plot_data_subjects, aes(x = label, y = proportion_problematic)) +
   scale_fill_manual(values = c("#74add1", "#fdae61", "#d73027")) +
   xlab("") +
   ylab("% Definitely problematic") +
-  theme_bw() +
+  theme_bw(base_size=12) +
   coord_flip() +
   guides(fill = FALSE) +
-  geom_text(aes(x = 17.5, y = 31, label = p_text), size = 3)
+  geom_text(aes(x = 18.5, y = 38.5, label = p_text), size = 3)
 
 ggsave("Figures/Proportion_Problematic_Subjects_barplot.pdf", width=6.5)

@@ -10,32 +10,34 @@ dir.create("Figures", showWarnings = FALSE, recursive = TRUE)
 dir.create("Tables", showWarnings = FALSE, recursive = TRUE)
 
 read_tsv("Cross_Validation_Results_Metrics.tsv") %>%
+  pivot_wider(names_from = metric, values_from = value) %>%
   group_by(algorithm, iteration) %>%
-  summarise(auroc = median(auroc)) %>%
+  summarise(AUROC = median(AUROC), AUPRC = median(AUPRC)) %>%
   group_by(algorithm) %>%
-  summarize(auroc = mean(auroc)) %>%
-  mutate(auroc = round(auroc, 2)) %>%
+  summarize(AUROC = mean(AUROC), AUPRC = mean(AUPRC)) %>%
+  mutate(AUROC = round(AUROC, 2), AUPRC = round(AUPRC, 2)) %>%
   dplyr::rename(Algorithm = algorithm) %>%
-  dplyr::rename(AUROC = auroc) %>%
   kable(format="simple") %>%
   write("Tables/Cross_Validation_Results_Metrics.md")
 
 cnn_data = read_tsv("Cross_Validation_Results_CNN.tsv") %>%
   group_by(algorithm, image_type, iteration) %>%
-  summarise(auroc = median(auroc)) %>%
+  summarise(auroc = median(auroc), auprc = median(auprc)) %>%
   group_by(algorithm, image_type) %>%
-  summarize(auroc = mean(auroc)) %>%
+  summarize(auroc = mean(auroc), auprc = mean(auprc)) %>%
+  ungroup() %>%
   mutate(image_type = ifelse(image_type == "deut", "Deuteranopia simulated", "Original colors")) %>%
   mutate(image_type = factor(image_type, levels = c("Original colors", "Deuteranopia simulated"))) %>%
-  mutate(algorithm = factor(algorithm, levels = as.character(0:22)))
+  mutate(Technique = factor(algorithm, levels = as.character(0:22))) %>%
+  select(-algorithm)
 
-baseline = filter(cnn_data, algorithm == 0 & image_type == "Original colors")$auroc
+baseline = filter(cnn_data, Technique == 0 & image_type == "Original colors")$auprc
 
-ggplot(cnn_data, aes(x = algorithm, y = auroc, fill = image_type)) +
+ggplot(cnn_data, aes(x = Technique, y = auprc, fill = image_type)) +
   geom_col(position = "dodge", width=0.6) +
   geom_hline(yintercept = baseline, linetype = "dashed", linewidth = 0.5) +
-  xlab("Hyperparameter combination") +
-  ylab("Summarized AUROC") +
+  xlab("Technique") +
+  ylab("Summarized AUPRC") +
   theme_bw() +
   labs(fill = "") +
   scale_fill_manual(values = c("#5aae61", "#9970ab"))
@@ -44,7 +46,7 @@ save_fig("Hyperparameter_Configurations")
 
 ######################################################
 
-hyperparameters = tribble(~`Hyperparameter combination`, ~`Class weighting`, ~`Early stopping`, ~`Random rotation`, ~`Dropout`, ~`Transfer learning`, ~`Fine tuning`,
+hyperparameters = tribble(~`Technique`, ~`Class weighting`, ~`Early stopping`, ~`Random rotation`, ~`Dropout`, ~`Transfer learning`, ~`Fine tuning`,
                           0, "No", "No", 0.0, 0.0, "None", "No",
                           1, "Yes", "No", 0.0, 0.0, "None", "No",
                           2, "No", "Yes", 0.0, 0.0, "None", "No",
@@ -68,14 +70,15 @@ hyperparameters = tribble(~`Hyperparameter combination`, ~`Class weighting`, ~`E
                           20, "Yes", "Yes", 0.2, 0.0, "MobileNetV2", "Yes",
                           21, "Yes", "Yes", 0.2, 0.2, "MobileNetV2", "Yes",
                           22, "Yes", "Yes", 0.2, 0.5, "MobileNetV2", "Yes") %>%
-  mutate(`Hyperparameter combination` = factor(`Hyperparameter combination`, levels = as.character(0:22)))
+  mutate(`Technique` = factor(`Technique`, levels = as.character(0:22)))
 
-filter(cnn_data, image_type == "Original colors") %>%
-  dplyr::rename(`Hyperparameter combination` = algorithm) %>%
-  inner_join(hyperparameters, by = "Hyperparameter combination") %>%
-  select(-image_type) %>%
-  select(-auroc, everything()) %>%
+cnn_data2 = filter(cnn_data, image_type == "Original colors") %>%
+  select(-image_type)
+
+inner_join(hyperparameters, cnn_data2) %>%
   dplyr::rename(AUROC = auroc) %>%
   mutate(AUROC = round(AUROC, 2)) %>%
+  dplyr::rename(AUPRC = auprc) %>%
+  mutate(AUPRC = round(AUPRC, 2)) %>%
   kable(format="simple") %>%
   write("Tables/Hyperparameter_Combination_Results.md")
