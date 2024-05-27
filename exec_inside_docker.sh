@@ -76,7 +76,7 @@ set -o errexit
 #python3 7A_Classify_Using_CNN.py > /tmp/7A_Classify_Using_CNN.out 2> /tmp/7A_Classify_Using_CNN.err
 #python3 7B_Collate_CNN_Metrics.py
 
-Rscript 8_Summarize_Cross_Validation.R
+#Rscript 8_Summarize_Cross_Validation.R
 
 #Rscript 9_Analyze_Image_Metrics_Testing.R
 #python3 10_Classify_Using_Metrics_Testing.py
