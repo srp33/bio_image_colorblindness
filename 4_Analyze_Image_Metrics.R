@@ -1,7 +1,8 @@
 library(broom)
 library(knitr)
-library(tidyverse)
+library(PRROC)
 library(randomForest)
+library(tidyverse)
 library(yardstick)
 
 metrics_data = read_tsv("eLife_Metrics.tsv") %>%
@@ -271,7 +272,7 @@ ggplot(classification_data, aes(x = Class, y = combined_score)) +
 
 ggsave("Figures/Combined_Rank_Score_boxplot.pdf", width=6.5)
 
-# Calculate AUROC for each of these scores.
+# Calculate AUROC and AUPRC for each of these scores.
 
 min_max_scale = function(x, inverse=FALSE) {
   y = (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
@@ -282,6 +283,11 @@ min_max_scale = function(x, inverse=FALSE) {
   y
 }
 
+calc_auprc = function(scores, labels) {
+  pr_curve <- pr.curve(scores.class0 = scores, weights.class0 = labels, curve = TRUE)
+  return(pr_curve$auc.integral)
+}
+
 auc_data = classification_data %>%
   mutate(max_ratio_scaled = min_max_scale(max_ratio)) %>%
   mutate(num_high_ratios_scaled = min_max_scale(num_high_ratios)) %>%
@@ -290,22 +296,29 @@ auc_data = classification_data %>%
   mutate(euclidean_distance_metric_scaled = min_max_scale(euclidean_distance_metric, inverse=TRUE)) %>%
   mutate(combined_score_scaled = min_max_scale(combined_score, inverse=TRUE))
 
-max_ratio_scaled = pull(roc_auc(auc_data, Class, max_ratio_scaled), .estimate) # 0.630
-num_high_ratios_scaled = pull(roc_auc(auc_data, Class, num_high_ratios_scaled), .estimate) # 0.748
-proportion_high_ratio_pixels_scaled = pull(roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled), .estimate) # 0.733
-mean_delta_scaled = pull(roc_auc(auc_data, Class, mean_delta_scaled), .estimate) # 0.444
-euclidean_distance_metric_scaled = pull(roc_auc(auc_data, Class, euclidean_distance_metric_scaled), .estimate) # 0.673
-combined_score_scaled = pull(roc_auc(auc_data, Class, combined_score_scaled), .estimate) # 0.709
+max_ratio_scaled_auroc = pull(roc_auc(auc_data, Class, max_ratio_scaled), .estimate) # 0.630
+num_high_ratios_scaled_auroc = pull(roc_auc(auc_data, Class, num_high_ratios_scaled), .estimate) # 0.748
+proportion_high_ratio_pixels_scaled_auroc = pull(roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled), .estimate) # 0.733
+mean_delta_scaled_auroc = pull(roc_auc(auc_data, Class, mean_delta_scaled), .estimate) # 0.444
+euclidean_distance_metric_scaled_auroc = pull(roc_auc(auc_data, Class, euclidean_distance_metric_scaled), .estimate) # 0.673
+combined_score_scaled_auroc = pull(roc_auc(auc_data, Class, combined_score_scaled), .estimate) # 0.709
 
-tribble(~"Metric", ~"AUROC",
-        "Mean, pixel-wise color distance between the original and simulated image", round(mean_delta_scaled, 2),
-        "Color-distance ratio between the original and simulated images for the color pair with the largest distance in the original image", round(max_ratio_scaled, 2),
-        "Number of color pairs that exhibited a high color-distance ratio between the original and simulated images", round(num_high_ratios_scaled, 2),
-        "Proportion of pixels in the original image that used a color from one of the high-ratio color pairs", round(proportion_high_ratio_pixels_scaled, 2),
-        "Mean Euclidean distance between pixels for high-ratio color pairs", round(euclidean_distance_metric_scaled, 2),
-        "Rank-based score that combines the metrics", round(combined_score_scaled, 2)) %>%
+max_ratio_scaled_auprc = calc_auprc(pull(auc_data, max_ratio_scaled), pull(auc_data, Class) == "Definitely problematic")
+num_high_ratios_scaled_auprc = calc_auprc(pull(auc_data, num_high_ratios_scaled), pull(auc_data, Class) == "Definitely problematic")
+proportion_high_ratio_pixels_scaled_auprc = calc_auprc(pull(auc_data, proportion_high_ratio_pixels_scaled), pull(auc_data, Class) == "Definitely problematic")
+mean_delta_scaled_auprc = calc_auprc(pull(auc_data, mean_delta_scaled), pull(auc_data, Class) == "Definitely problematic")
+euclidean_distance_metric_scaled_auprc = calc_auprc(pull(auc_data, euclidean_distance_metric_scaled), pull(auc_data, Class) == "Definitely problematic")
+combined_score_scaled_auprc = calc_auprc(pull(auc_data, combined_score_scaled), pull(auc_data, Class) == "Definitely problematic")
+
+tribble(~"Metric", ~"AUROC", ~"AUPRC",
+        "Mean, pixel-wise color distance between the original and simulated image", round(mean_delta_scaled_auroc, 2), round(mean_delta_scaled_auprc, 2),
+        "Color-distance ratio between the original and simulated images for the color pair with the largest distance in the original image", round(max_ratio_scaled_auroc, 2), round(max_ratio_scaled_auprc, 2),
+        "Number of color pairs that exhibited a high color-distance ratio between the original and simulated images", round(num_high_ratios_scaled_auroc, 2), round(num_high_ratios_scaled_auprc, 2),
+        "Proportion of pixels in the original image that used a color from one of the high-ratio color pairs", round(proportion_high_ratio_pixels_scaled_auroc, 2), round(proportion_high_ratio_pixels_scaled_auprc, 2),
+        "Mean Euclidean distance between pixels for high-ratio color pairs", round(euclidean_distance_metric_scaled_auroc, 2), round(euclidean_distance_metric_scaled_auprc, 2),
+        "Rank-based score that combines the metrics", round(combined_score_scaled_auroc, 2), round(combined_score_scaled_auprc, 2)) %>%
   kable(format="simple") %>%
-  write("Tables/Metrics_AUROC.md")
+  write("Tables/Metrics_AUROC_AUPRC.md")
 
 ###############################################
 # Generate file that can be used for
