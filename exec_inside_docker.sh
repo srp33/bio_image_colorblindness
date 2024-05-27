@@ -80,7 +80,8 @@ set -o errexit
 
 #Rscript 9_Analyze_Image_Metrics_Testing.R
 #python3 10_Classify_Using_Metrics_Testing.py
-#python3 11_Classify_Using_CNN_Testing.py
+#python3 11A_Classify_Using_CNN_Testing.py
+python3 11B_Add_F1_Score.py
 #Rscript 12_Plot_CNN_Testing.R
 
 #tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir

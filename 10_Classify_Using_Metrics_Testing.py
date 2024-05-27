@@ -2,6 +2,7 @@ import sklearn as sk
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_curve, average_precision_score
+from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import roc_auc_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -31,8 +32,11 @@ testing_X = pipeline.transform(testing_X)
 model = LogisticRegression(solver='liblinear', class_weight="balanced", random_state=0)
 model.fit(training_X, training_y)
 predictions = model.predict_proba(testing_X)
+
 auroc = roc_auc_score(testing_y, predictions[:,1])
 auprc = average_precision_score(testing_y, predictions[:,1])
 
+precision, recall, f1, support = precision_recall_fscore_support(testing_y, predictions[:,1] > 0.5)
+
 with open(out_file_path, "w") as out_file:
-    out_file.write(f"auroc\tauprc\n{auroc}\t{auprc}")
+    out_file.write(f"auroc\tauprc\tprecision\trecall\tf1\n{auroc}\t{auprc}\t{precision[1]}\t{recall[1]}\t{f1[1]}")
