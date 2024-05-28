@@ -28,15 +28,15 @@ cnn_data = read_tsv("Cross_Validation_Results_CNN.tsv") %>%
   ungroup() %>%
   mutate(image_type = ifelse(image_type == "deut", "Deuteranopia simulated", "Original colors")) %>%
   mutate(image_type = factor(image_type, levels = c("Original colors", "Deuteranopia simulated"))) %>%
-  mutate(Technique = factor(algorithm, levels = as.character(0:22))) %>%
+  mutate(Combination = factor(algorithm, levels = as.character(0:22))) %>%
   select(-algorithm)
 
-baseline = filter(cnn_data, Technique == 0 & image_type == "Original colors")$auprc
+baseline = filter(cnn_data, Combination == 0 & image_type == "Original colors")$auprc
 
-ggplot(cnn_data, aes(x = Technique, y = auprc, fill = image_type)) +
+ggplot(cnn_data, aes(x = Combination, y = auprc, fill = image_type)) +
   geom_col(position = "dodge", width=0.6) +
   geom_hline(yintercept = baseline, linetype = "dashed", linewidth = 0.5) +
-  xlab("Technique") +
+  xlab("Combination") +
   ylab("Summarized AUPRC") +
   theme_bw() +
   labs(fill = "") +
@@ -46,7 +46,7 @@ save_fig("Hyperparameter_Configurations")
 
 ######################################################
 
-hyperparameters = tribble(~`Technique`, ~`Class weighting`, ~`Early stopping`, ~`Random rotation`, ~`Dropout`, ~`Transfer learning`, ~`Fine tuning`,
+hyperparameters = tribble(~`Combination`, ~`Class weighting`, ~`Early stopping`, ~`Random rotation`, ~`Dropout`, ~`Transfer learning`, ~`Fine tuning`,
                           0, "No", "No", 0.0, 0.0, "None", "No",
                           1, "Yes", "No", 0.0, 0.0, "None", "No",
                           2, "No", "Yes", 0.0, 0.0, "None", "No",
@@ -70,7 +70,7 @@ hyperparameters = tribble(~`Technique`, ~`Class weighting`, ~`Early stopping`, ~
                           20, "Yes", "Yes", 0.2, 0.0, "MobileNetV2", "Yes",
                           21, "Yes", "Yes", 0.2, 0.2, "MobileNetV2", "Yes",
                           22, "Yes", "Yes", 0.2, 0.5, "MobileNetV2", "Yes") %>%
-  mutate(`Technique` = factor(`Technique`, levels = as.character(0:22)))
+  mutate(`Combination` = factor(`Combination`, levels = as.character(0:22)))
 
 cnn_data2 = filter(cnn_data, image_type == "Original colors") %>%
   select(-image_type)

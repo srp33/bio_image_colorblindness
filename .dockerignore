@@ -9,4 +9,5 @@ ImageSample*
 TestingImages
 TrainingImages
 nohup.out
-PMC*
+PMC_Images
+PMC_Images.tar.gz
