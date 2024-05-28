@@ -13,18 +13,19 @@ from tensorflow import keras
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.applications import ResNet50
 
+testing_images_tsv_file_path = sys.argv[1]
+output_metrics_folder = sys.argv[2]
+output_models_folder = sys.argv[3]
+
+os.makedirs(output_metrics_folder, exist_ok=True)
+os.makedirs(output_models_folder, exist_ok=True)
+
+out_predictions_file_path = os.path.join(output_metrics_folder, "predictions.tsv")
+out_metrics_file_path = os.path.join(output_metrics_folder, "metrics.tsv")
+out_epoch_metrics_file_path = os.path.join(output_metrics_folder, "epoch_metrics.tsv")
+out_model_file_path = os.path.join(output_models_folder, "model.h5")
+
 def run_model(image_size, include_class_weighting, early_stopping, random_rotation, dropout, transfer_learning_model, fine_tuning):
-    output_metrics_folder = "CNN_Metrics_final"
-    output_models_folder = "CNN_Models_final"
-
-    os.makedirs(output_metrics_folder, exist_ok=True)
-    os.makedirs(output_models_folder, exist_ok=True)
-
-    out_predictions_file_path = os.path.join(output_metrics_folder, "predictions.tsv")
-    out_metrics_file_path = os.path.join(output_metrics_folder, "metrics.tsv")
-    out_epoch_metrics_file_path = os.path.join(output_metrics_folder, "epoch_metrics.tsv")
-    out_model_file_path = os.path.join(output_models_folder, "model.h5")
-
     image_size = (image_size, image_size)
     batch_size = 32
     validation_split = 0.20
@@ -321,7 +322,7 @@ seed(random_seed) #Set random seed for numpy
 tf.random.set_seed(random_seed) #Set random seed for tensorflow
 
 training_df = pd.read_csv("Image_Metrics_Classification_Data.tsv", delimiter="\t")
-testing_df = pd.read_csv("Image_Metrics_Classification_Data_Testing.tsv", delimiter="\t")
+testing_df = pd.read_csv(testing_images_tsv_file_path, delimiter="\t")
 
 training_image_file_paths_unfriendly = []
 training_image_file_paths_friendly = []
