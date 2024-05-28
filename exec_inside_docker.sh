@@ -80,9 +80,8 @@ set -o errexit
 
 #Rscript 9_Analyze_Image_Metrics_Testing.R
 #python3 10_Classify_Using_Metrics_Testing.py
-python3 11A_Classify_Using_CNN_Testing.py "Image_Metrics_Classification_Data_Testing.tsv" "CNN_Metrics_final" "CNN_Models_final"
-#TODO: Add params to the following script
-#python3 11B_Add_F1_Score.py
+#python3 11A_Classify_Using_CNN_Testing.py "Image_Metrics_Classification_Data_Testing.tsv" "CNN_Metrics_final" "CNN_Models_final"
+#python3 11B_Add_F1_Score.py "CNN_Metrics_final/metrics.tsv"
 #Rscript 12_Plot_CNN_Testing.R
 
 #tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir
@@ -91,6 +90,8 @@ python3 11A_Classify_Using_CNN_Testing.py "Image_Metrics_Classification_Data_Tes
 
 #rm -f PMC_Images.tar.gz
 #tar -zcvf PMC_Images.tar.gz PMC*
+
+Rscript 14_Parse_PMC_Results.R
 
 #python3 11A_Classify_Using_CNN_Testing.py "PMC_Images.tsv" "CNN_Metrics_PMC" "CNN_Models_PMC"
 #TODO: Add params to the following script

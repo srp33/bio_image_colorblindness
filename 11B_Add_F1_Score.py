@@ -1,4 +1,6 @@
-file_path = "CNN_Metrics_final/metrics.tsv"
+import sys
+
+file_path = sys.argv[1]
 
 current_metrics_dict = {}
 
