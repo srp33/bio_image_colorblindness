@@ -80,19 +80,24 @@ set -o errexit
 
 #Rscript 9_Analyze_Image_Metrics_Testing.R
 #python3 10_Classify_Using_Metrics_Testing.py
-#python3 11A_Classify_Using_CNN_Testing.py "Image_Metrics_Classification_Data_Testing.tsv" "CNN_Metrics_final" "CNN_Models_final"
-#python3 11B_Add_F1_Score.py "CNN_Metrics_final/metrics.tsv"
+#python3 11A_Train_CNN_Model.py "Image_Metrics_Classification_Data.tsv" "CNN_Models_final"
+#python3 11B_Test_CNN_Model.py "CNN_Models_final" "Image_Metrics_Classification_Data_Testing.tsv" "CNN_Metrics_final"
+#python3 11C_Add_F1_Score.py "CNN_Metrics_final/metrics.tsv"
 #Rscript 12_Plot_CNN_Testing.R
-
-#tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir
 
 #Rscript 13_Select_PMC_Images.R
 
 #rm -f PMC_Images.tar.gz
 #tar -zcvf PMC_Images.tar.gz PMC*
 
-Rscript 14_Parse_PMC_Results.R
+#Rscript 14_Parse_PMC_Results.R
 
-#python3 11A_Classify_Using_CNN_Testing.py "PMC_Images.tsv" "CNN_Metrics_PMC" "CNN_Models_PMC"
-#TODO: Add params to the following script
-#python3 11B_Add_F1_Score.py
+# These are actually step 15
+#python3 11B_Test_CNN_Model.py "CNN_Models_final" "PMC_Selected_Articles_for_testing.tsv" "CNN_Metrics_PMC"
+#python3 11C_Add_F1_Score.py CNN_Metrics_PMC/metrics.tsv
+
+# This is actually step 16
+#python3 11A_Train_CNN_Model.py "Image_Metrics_Classification_Data.tsv,Image_Metrics_Classification_Data_Testing.tsv,PMC_Selected_Articles_for_testing.tsv" "CNN_Models_combined"
+
+#tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir
+tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_combined/model.h5 CNN_Models_combined/tfjs_target_dir
