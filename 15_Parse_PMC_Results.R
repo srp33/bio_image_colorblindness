@@ -16,5 +16,16 @@ group_by(labeled_data, Class) %>%
 # Definitely okay         1195
 # Definitely problematic   104
 
-mutate(labeled_data, Class = as.integer(Class) - 1) %>%
+labeled_data = mutate(labeled_data, Class = as.integer(Class) - 1)
+
+metrics_data = read_tsv("PMC_Metrics.tsv")
+
+joined_data = inner_join(metrics_data, labeled_data) %>%
+  filter(!is.na(euclidean_distance_metric)) %>%
+  select(-article_id, -is_rgb)
+
+select(joined_data, -image_file_path) %>%
+  write_tsv("Image_Metrics_Classification_Data_PMC.tsv")
+
+select(joined_data, image_file_path, Class) %>%
   write_tsv("PMC_Selected_Articles_for_testing.tsv")

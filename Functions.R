@@ -236,7 +236,13 @@ calculate_image_metrics = function(article_id, image_file_path, ratio_threshold)
   # Calculate ratios between all color pairs
   # https://vis4.net/blog/2018/02/automate-colorblind-checking/
   deut_ratios = find_color_ratios(original_hex)
-    
+
+  # If this comes back as NULL, it means all the colors were grayscale,
+  # even though the image was marked as RGB.
+  if (is.null(deut_ratios)) {
+    return(tibble(article_id, image_file_path, is_rgb = 0, max_ratio = NA, num_high_ratios = NA, proportion_high_ratio_pixels = NA, mean_delta = NA, euclidean_distance_metric = NA))
+  }
+
   # Find color pair with highest ratio
   max_ratio_hex_pair = extract_ratio_hex_pair(deut_ratios, 1)
   max_ratio = deut_ratios[paste0(max_ratio_hex_pair, collapse="_")]

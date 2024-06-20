@@ -5,6 +5,7 @@ CNN_Models_final
 elife-article-xml*
 Images
 TempResults
+TempPMCResults*
 ImageSample*
 TestingImages
 TrainingImages
