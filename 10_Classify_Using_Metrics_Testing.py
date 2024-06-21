@@ -51,7 +51,7 @@ with open(out_metrics_file_path, "w") as out_file:
     out_file.write(f"auroc\tauprc\tprecision\trecall\tf1\taccuracy\ttp\ttn\tfp\tfn\n{auroc}\t{auprc}\t{precision[1]}\t{recall[1]}\t{f1[1]}\t{accuracy}\t{tp}\t{tn}\t{fp}\t{fn}")
 
 with open(out_predictions_file_path, "w") as out_file:
-    out_file.write("Label\tPrediction\n")
+    out_file.write("label\tprobability_unfriendly\n")
 
     for i, label in enumerate(testing_y):
         prediction = predictions[i,1]

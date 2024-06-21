@@ -1,4 +1,4 @@
-Label	Prediction
+label	probability_unfriendly
 0	0.4976500472107811
 1	0.7278629402232962
 1	0.8431196258581749
