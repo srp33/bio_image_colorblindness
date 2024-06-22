@@ -1,4 +1,5 @@
 library(broom)
+library(diptest)
 library(knitr)
 library(PRROC)
 library(randomForest)
@@ -67,7 +68,7 @@ plot_data = filter(metrics_data, is_rgb == 1)
 
 # The mean, pixel-wise color distance between the original and simulated image
 ggplot(plot_data, aes(x = mean_delta)) +
-  geom_histogram(binwidth = 0.005) +
+  geom_histogram(binwidth = 0.003) +
   xlab("Mean, pixel-wise color distance between original and simulated images") +
   ylab("Count") +
   theme_bw()
@@ -76,6 +77,17 @@ if (!dir.exists("Figures"))
   dir.create("Figures")
 
 ggsave("Figures/Mean_Pixelwise_Distance_histogram.pdf", width=6.5)
+
+# Understand more about the bimodal distribution.
+md = pull(plot_data, mean_delta)
+
+print(dip.test(md))
+
+print(sum(md < 0.01)) # 4708
+print(sum(md < 0.01) / length(md)) # 0.07298206
+
+md = pull(plot_data, mean_delta)
+print(median(md[md >= 0.01])) # 0.04527808
 
 # The color-distance ratio between the original and simulated images for the color pair with the largest distance in the original image
 ggplot(plot_data, aes(x = max_ratio)) +
@@ -86,14 +98,20 @@ ggplot(plot_data, aes(x = max_ratio)) +
 
 ggsave("Figures/Max_Color_Distance_Ratio_histogram.pdf", width=6.5)
 
+mr = pull(plot_data, max_ratio)
+print(dip.test(mr))
+
 # The number of color pairs that exhibited a high color-distance ratio between the original and simulated images
 ggplot(plot_data, aes(x = num_high_ratios)) +
-  geom_histogram(binwidth=10) +
+  geom_histogram(binwidth=5) +
   xlab("Number of high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
 
 ggsave("Figures/Num_High_Ratio_Pairs_histogram.pdf", width=6.5)
+
+nhr = pull(plot_data, num_high_ratios)
+print(dip.test(nhr))
 
 # The proportion of pixels in the original image that used a color from one of the high-ratio color pairs
 ggplot(plot_data, aes(x = proportion_high_ratio_pixels)) +
@@ -104,14 +122,20 @@ ggplot(plot_data, aes(x = proportion_high_ratio_pixels)) +
 
 ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs_histogram.pdf", width=6.5)
 
+phrp = pull(plot_data, proportion_high_ratio_pixels)
+print(dip.test(phrp))
+
 # Mean Euclidean distance between pixels for high-ratio color pairs
 ggplot(plot_data, aes(x = euclidean_distance_metric)) +
-  geom_histogram(binwidth=10) +
+  geom_histogram(binwidth=5) +
   xlab("Mean distance between high-ratio color pairs") +
   ylab("Count") +
   theme_bw()
 
 ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs_histogram.pdf", width=6.5)
+
+edm = pull(plot_data, euclidean_distance_metric)
+print(dip.test(edm))
 
 ###############################################
 # Correlation between metrics

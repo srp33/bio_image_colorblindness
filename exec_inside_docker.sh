@@ -83,7 +83,8 @@ set -o errexit
 #python3 11A_Train_CNN_Model.py "Image_Metrics_Classification_Data.tsv" "CNN_Models_final"
 #python3 11B_Test_CNN_Model.py "CNN_Models_final" "Image_Metrics_Classification_Data_Testing.tsv" "CNN_Metrics_final"
 #python3 11C_Add_F1_Score.py "CNN_Metrics_final/metrics.tsv"
-#Rscript 12_Plot_CNN_Testing.R
+
+#Rscript 12_Plot_Testing_Results.R
 
 #Rscript 13_Select_PMC_Images.R
 #Rscript 14_Process_Images.R

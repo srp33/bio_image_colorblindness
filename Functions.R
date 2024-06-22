@@ -346,3 +346,57 @@ create_simulated_image = function(in_file_path, out_file_path) {
 
   image_write(deut_img, out_file_path, quality = 100)
 }
+
+plot_probabilities = function(predictions, out_file_name) {
+  p = ggplot(predictions, aes(x = label, y = probability_unfriendly, col = label)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_jitter(height = 0, alpha = 0.3, size = 3) +
+    theme_bw(base_size = 16) +
+    guides(color = FALSE) +
+    xlab("") +
+    ylab("Confidence score (Definitely problematic)") +
+    scale_color_manual(values = c("#018571", "#a6611a"))
+  
+  plot(p)
+  save_fig(out_file_name)
+}
+
+plot_roc = function(predictions, out_file_name) {
+  r = roc(label ~ probability_unfriendly, data = predictions)
+  
+  plot_data = tibble(Sensitivity = r$sensitivities, Specificity = r$specificities)
+
+  p = ggplot(plot_data, aes(x = Specificity, y = Sensitivity)) +
+    geom_line() +
+    geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey", linetype = "dashed") +
+    scale_y_continuous(expand = c(0, 0)) +
+    scale_x_reverse(expand = c(0, 0)) +
+    geom_text(aes(x = 0.3, y = 0.3, label = paste0("AUROC: ", round(as.numeric(r$auc), 2)))) +
+    theme_bw(base_size = 12) +
+    theme(plot.margin = margin(5.5, 12, 5.5, 5.5)) # Adding margin to avoid clipping
+  
+  plot(p)
+  save_fig(out_file_name)
+}
+
+plot_prc = function(predictions, out_file_name) {
+  pr_curve <- pr.curve(scores.class0 = predictions$probability_unfriendly, weights.class0 = predictions$label == "Definitely problematic", curve = TRUE)
+  
+  auprc = pr_curve$auc.integral
+  
+  as_tibble(pr_curve$curve) %>%
+    dplyr::rename(Recall = V1, Precision = V2, Threshold = V3) %>%
+    ggplot(aes(x = Recall, y = Precision)) +
+    geom_line() +
+    geom_text(x = 0.3, y = 0.3, label = paste0("AUPRC: ", round(auprc, 2))) +
+    xlim(0, 1) +
+    ylim(0, 1) +
+    theme_bw()
+  
+  save_fig(out_file_name)
+}
+
+save_fig = function(file_name, width = 6.5, height=5) {
+  ggsave(paste0("Figures/", file_name, ".png"), width=width, height=height)
+  ggsave(paste0("Figures/", file_name, ".pdf"), width=width, height=height)
+}
