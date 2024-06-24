@@ -101,7 +101,7 @@ python3 16_Classify_Using_Metrics_PMC.py
 
 #TODO: Create this script.
 #  Why might we be getting such high PRC and moderate AUROC? Ask GPT.
-Rscript 18_Plot_PMC_Results.R
+#Rscript 18_Plot_PMC_Results.R
 
 # This is actually step 19
 #python3 11A_Train_CNN_Model.py "Image_Metrics_Classification_Data.tsv,Image_Metrics_Classification_Data_Testing.tsv,PMC_Selected_Articles_for_testing.tsv" "CNN_Models_combined"
