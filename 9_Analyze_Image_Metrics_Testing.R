@@ -83,7 +83,7 @@ set.seed(33)
 classification_data_training = inner_join(metrics_data, curated_data_training, by="image_file_name") %>%
   mutate(Class = as.character(conclusion)) %>%
   filter(Class %in% c("Definitely okay", "Definitely problematic")) %>%
-  mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay"))) %>%
+  mutate(Class = factor(Class, levels = c("Definitely okay", "Definitely problematic"))) %>%
   filter(!is.na(euclidean_distance_metric)) %>%
   mutate(image_file_dir = basename(image_file_path)) %>%
   mutate(image_file_dir = str_replace(image_file_dir, "\\.jpg", "")) %>%
@@ -96,7 +96,7 @@ classification_data_training = inner_join(metrics_data, curated_data_training, b
 classification_data_testing = inner_join(metrics_data, curated_data_testing, by="image_file_name") %>%
   mutate(Class = as.character(conclusion)) %>%
   filter(Class %in% c("Definitely okay", "Definitely problematic")) %>%
-  mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay"))) %>%
+  mutate(Class = factor(Class, levels = c("Definitely okay", "Definitely problematic"))) %>%
   filter(!is.na(euclidean_distance_metric)) %>%
   mutate(image_file_dir = basename(image_file_path)) %>%
   mutate(image_file_dir = str_replace(image_file_dir, "\\.jpg", "")) %>%

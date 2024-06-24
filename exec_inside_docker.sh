@@ -78,7 +78,7 @@ set -o errexit
 
 #Rscript 8_Summarize_Cross_Validation.R
 
-#Rscript 9_Analyze_Image_Metrics_Testing.R
+Rscript 9_Analyze_Image_Metrics_Testing.R
 #python3 10_Classify_Using_Metrics_Testing.py
 #python3 11A_Train_CNN_Model.py "Image_Metrics_Classification_Data.tsv" "CNN_Models_final"
 #python3 11B_Test_CNN_Model.py "CNN_Models_final" "Image_Metrics_Classification_Data_Testing.tsv" "CNN_Metrics_final"
@@ -99,7 +99,11 @@ set -o errexit
 #python3 11B_Test_CNN_Model.py "CNN_Models_final" "PMC_Selected_Articles_for_testing.tsv" "CNN_Metrics_PMC"
 #python3 11C_Add_F1_Score.py CNN_Metrics_PMC/metrics.tsv
 
-# This is actually step 18
+#TODO: Create this script.
+#  Why might we be getting such high PRC and moderate AUROC? Ask GPT.
+Rscript 18_Plot_PMC_Results.R
+
+# This is actually step 19
 #python3 11A_Train_CNN_Model.py "Image_Metrics_Classification_Data.tsv,Image_Metrics_Classification_Data_Testing.tsv,PMC_Selected_Articles_for_testing.tsv" "CNN_Models_combined"
 
 #tensorflowjs_converter --input_format keras --output_format=tfjs_graph_model CNN_Models_final/model.h5 CNN_Models_final/tfjs_target_dir

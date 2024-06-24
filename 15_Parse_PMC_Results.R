@@ -5,7 +5,7 @@ labeled_data = read_tsv("PMC_Selected_Articles_labeled.tsv") %>%
   dplyr::rename(Class = `Conclusion (5 types listed in drop down)`) %>%
   select(image_file_path, Class) %>%
   filter(Class %in% c("Definitely okay", "Definitely problematic")) %>%
-  mutate(Class = factor(Class, levels = c("Definitely problematic", "Definitely okay")))
+  mutate(Class = factor(Class, levels = c("Definitely okay", "Definitely problematic")))
 
 group_by(labeled_data, Class) %>%
   summarize(Count = n()) %>%
