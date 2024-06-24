@@ -3,6 +3,7 @@ FROM bioconductor/bioconductor_docker:RELEASE_3_15
 RUN R -e "install.packages(c('httr', 'magick', 'spacesXYZ', 'tidyverse', 'xml2'), repos='https://cloud.r-project.org')"
 RUN R -e "install.packages(c('foreach', 'doParallel'), repos='https://cloud.r-project.org')"
 RUN R -e "install.packages(c('colorspace', 'knitr', 'grid', 'pROC', 'spacesXYZ', 'yardstick'), repos='https://cloud.r-project.org')"
+RUN R -e "install.packages(c('PRROC', 'writexl'), repos='https://cloud.r-project.org')"
 # https://stackoverflow.com/questions/31407010/cache-resources-exhausted-imagemagick
 RUN sed -i 's/1GiB/8GiB/g' /etc/ImageMagick-6/policy.xml
 
