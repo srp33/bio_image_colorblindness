@@ -385,14 +385,17 @@ plot_prc = function(predictions, out_file_name) {
   
   auprc = pr_curve$auc.integral
   
-  as_tibble(pr_curve$curve) %>%
-    dplyr::rename(Recall = V1, Precision = V2, Threshold = V3) %>%
-    ggplot(aes(x = Recall, y = Precision)) +
+  plot_data = as_tibble(pr_curve$curve) %>%
+    dplyr::rename(Recall = V1, Precision = V2, Threshold = V3)
+  
+  p = ggplot(plot_data, aes(x = Recall, y = Precision)) +
     geom_line() +
     geom_text(x = 0.3, y = 0.3, label = paste0("AUPRC: ", round(auprc, 2))) +
     xlim(0, 1) +
     ylim(0, 1) +
     theme_bw()
+  
+  plot(p)
   
   save_fig(out_file_name)
 }
