@@ -93,14 +93,12 @@ set -o errexit
 #tar -zcvf PMC_Images.tar.gz PMC*
 
 #Rscript 15_Parse_PMC_Results.R
-python3 16_Classify_Using_Metrics_PMC.py
+#python3 16_Classify_Using_Metrics_PMC.py
 
 # These are actually step 17
 #python3 11B_Test_CNN_Model.py "CNN_Models_final" "PMC_Selected_Articles_for_testing.tsv" "CNN_Metrics_PMC"
 #python3 11C_Add_F1_Score.py CNN_Metrics_PMC/metrics.tsv
 
-#TODO: Create this script.
-#  Why might we be getting such high PRC and moderate AUROC? Ask GPT.
 #Rscript 18_Plot_PMC_Results.R
 
 # This is actually step 19
