@@ -364,7 +364,9 @@ plot_probabilities = function(predictions, out_file_name) {
 plot_roc = function(predictions, out_file_name) {
   r = roc(label ~ probability_unfriendly, data = predictions)
   
-  plot_data = tibble(Sensitivity = r$sensitivities, Specificity = r$specificities)
+  plot_data = tibble(Sensitivity = r$sensitivities, Specificity = r$specificities, Threshold = r$thresholds) %>%
+    arrange(Sensitivity, desc(Specificity)) %>%
+    View()
 
   p = ggplot(plot_data, aes(x = Specificity, y = Sensitivity)) +
     geom_line() +
@@ -373,7 +375,7 @@ plot_roc = function(predictions, out_file_name) {
     scale_x_reverse(expand = c(0, 0)) +
     geom_text(aes(x = 0.3, y = 0.3, label = paste0("AUROC: ", round(as.numeric(r$auc), 2)))) +
     theme_bw(base_size = 12) +
-    theme(plot.margin = margin(5.5, 12, 5.5, 5.5)) # Adding margin to avoid clipping
+    theme(plot.margin = margin(t = 5.5, r = 12, b = 5.5, l = 5.5))
   
   plot(p)
   save_fig(out_file_name)
