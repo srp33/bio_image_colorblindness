@@ -365,8 +365,7 @@ plot_roc = function(predictions, out_file_name) {
   r = roc(label ~ probability_unfriendly, data = predictions)
   
   plot_data = tibble(Sensitivity = r$sensitivities, Specificity = r$specificities, Threshold = r$thresholds) %>%
-    arrange(Sensitivity, desc(Specificity)) %>%
-    View()
+    arrange(Sensitivity, desc(Specificity))
 
   p = ggplot(plot_data, aes(x = Specificity, y = Sensitivity)) +
     geom_line() +
