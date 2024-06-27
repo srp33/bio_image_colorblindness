@@ -27,6 +27,10 @@ plot_probabilities(predictions, "CNN_Testing_predictions")
 plot_roc(predictions, "CNN_Testing_ROC")
 plot_prc(predictions, "CNN_Testing_AUPRC")
 
+###########################################################
+# Summarize the misclassifications for CNN.
+###########################################################
+
 misclassification_summary1 = arrange(predictions, probability_unfriendly) %>%
   filter(label == "Definitely problematic") %>%
   filter(probability_unfriendly < 0.5) %>%

@@ -23,6 +23,6 @@ plot_prc(predictions, "Metrics_PMC_AUPRC")
 predictions = read_tsv("CNN_Metrics_PMC/predictions.tsv") %>%
   mutate(label = ifelse(label == "friendly", "Definitely okay", "Definitely problematic"))
 
-plot_probabilities(predictions, "CNN_Testing_predictions")
-plot_roc(predictions, "CNN_Testing_ROC")
-plot_prc(predictions, "CNN_Testing_AUPRC")
+plot_probabilities(predictions, "CNN_PMC_predictions")
+plot_roc(predictions, "CNN_PMC_ROC")
+plot_prc(predictions, "CNN_PMC_AUPRC")

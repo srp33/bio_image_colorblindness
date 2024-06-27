@@ -361,6 +361,11 @@ plot_probabilities = function(predictions, out_file_name) {
   save_fig(out_file_name)
 }
 
+calc_auprc = function(scores, labels) {
+  pr_curve <- pr.curve(scores.class0 = scores, weights.class0 = labels, curve = TRUE)
+  return(pr_curve$auc.integral)
+}
+
 plot_roc = function(predictions, out_file_name) {
   r = roc(label ~ probability_unfriendly, data = predictions)
   
@@ -372,7 +377,7 @@ plot_roc = function(predictions, out_file_name) {
     geom_segment(aes(x = 1, xend = 0, y = 0, yend = 1), color = "grey", linetype = "dashed") +
     scale_y_continuous(expand = c(0, 0)) +
     scale_x_reverse(expand = c(0, 0)) +
-    geom_text(aes(x = 0.3, y = 0.3, label = paste0("AUROC: ", round(as.numeric(r$auc), 2)))) +
+    #geom_text(aes(x = 0.3, y = 0.3, label = paste0("AUROC: ", round(as.numeric(r$auc), 2)))) +
     theme_bw(base_size = 12) +
     theme(plot.margin = margin(t = 5.5, r = 12, b = 5.5, l = 5.5))
   
@@ -390,7 +395,7 @@ plot_prc = function(predictions, out_file_name) {
   
   p = ggplot(plot_data, aes(x = Recall, y = Precision)) +
     geom_line() +
-    geom_text(x = 0.3, y = 0.3, label = paste0("AUPRC: ", round(auprc, 2))) +
+    #geom_text(x = 0.3, y = 0.3, label = paste0("AUPRC: ", round(auprc, 2))) +
     xlim(0, 1) +
     ylim(0, 1) +
     theme_bw()

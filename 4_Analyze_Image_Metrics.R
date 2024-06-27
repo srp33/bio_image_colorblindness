@@ -242,57 +242,83 @@ size = 0.8
 color = "red"
 base_size = 14
 
+perform_two_sample_test = function(data, column) {
+  data2 = dplyr::rename(data, number_column = all_of(column))
+  
+  p = wilcox.test(number_column ~ Class, data=data2)$p.value
+  p = paste0("p = ", sprintf("%.1e", p))
+  return(p)
+}
+
+p = perform_two_sample_test(classification_data, "mean_delta")
+
 ggplot(classification_data, aes(x = Class, y = mean_delta)) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw() +
   xlab("") +
-  ylab("Mean, pixel-wise color distance\nbetween original and simulated image")
+  ylab("Mean, pixel-wise color distance\nbetween original and simulated image") +
+  geom_text(x = 1.5, y = 0.3, label=p)
 
 ggsave("Figures/Mean_Pixelwise_Distance_boxplot.pdf", width=6.5)
+
+p = perform_two_sample_test(classification_data, "max_ratio")
 
 ggplot(classification_data, aes(x = Class, y = log2(max_ratio))) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw(base_size = base_size) +
   xlab("") +
-  ylab("Max color-distance ratio (log2 scale)")
+  ylab("Max color-distance ratio (log2 scale)") +
+  geom_text(x = 1.5, y = 5, label=p)
 
 ggsave("Figures/Max_Color_Distance_Ratio_boxplot.pdf", width=6.5)
+
+p = perform_two_sample_test(classification_data, "num_high_ratios")
 
 ggplot(classification_data, aes(x = Class, y = log(num_high_ratios))) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw() +
   xlab("") +
-  ylab("Number of high-ratio color pairs (log2 scale)")
+  ylab("Number of high-ratio color pairs (log2 scale)") +
+  geom_text(x = 1.5, y = 6.5, label=p)
 
 ggsave("Figures/Num_High_Ratio_Pairs_boxplot.pdf", width=6.5)
+
+p = perform_two_sample_test(classification_data, "proportion_high_ratio_pixels")
 
 ggplot(classification_data, aes(x = Class, y = proportion_high_ratio_pixels)) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw() +
   xlab("") +
-  ylab("Proportion of high-ratio pixels")
+  ylab("Proportion of high-ratio pixels") +
+  geom_text(x = 1.5, y = 0.5, label=p)
 
 ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs_boxplot.pdf", width=6.5)
+
+p = perform_two_sample_test(classification_data, "euclidean_distance_metric")
 
 ggplot(classification_data, aes(x = Class, y = euclidean_distance_metric)) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw() +
   xlab("") +
-  ylab("Mean Euclidean distance between\npixels for high-ratio color pairs")
+  ylab("Mean Euclidean distance between\npixels for high-ratio color pairs") +
+  geom_text(x = 1.5, y = 175, label=p)
 
 ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs_boxplot.pdf", width=6.5)
+
+p = perform_two_sample_test(classification_data, "combined_score")
 
 ggplot(classification_data, aes(x = Class, y = combined_score)) +
   geom_boxplot() +
   geom_jitter(alpha = alpha, size=size, color = color) +
   theme_bw() +
   xlab("") +
-  ylab("Combined rank score")
+  ylab("Combined rank score") +
+  geom_text(x = 1.5, y = 2500, label=p)
 
 ggsave("Figures/Combined_Rank_Score_boxplot.pdf", width=6.5)
 
@@ -307,25 +333,20 @@ min_max_scale = function(x, inverse=FALSE) {
   y
 }
 
-calc_auprc = function(scores, labels) {
-  pr_curve <- pr.curve(scores.class0 = scores, weights.class0 = labels, curve = TRUE)
-  return(pr_curve$auc.integral)
-}
-
 auc_data = classification_data %>%
-  mutate(max_ratio_scaled = min_max_scale(max_ratio)) %>%
-  mutate(num_high_ratios_scaled = min_max_scale(num_high_ratios)) %>%
-  mutate(proportion_high_ratio_pixels_scaled = min_max_scale(proportion_high_ratio_pixels)) %>%
-  mutate(mean_delta_scaled = min_max_scale(mean_delta)) %>%
+  mutate(max_ratio_scaled = min_max_scale(max_ratio, inverse=FALSE)) %>%
+  mutate(num_high_ratios_scaled = min_max_scale(num_high_ratios, inverse=FALSE)) %>%
+  mutate(proportion_high_ratio_pixels_scaled = min_max_scale(proportion_high_ratio_pixels, inverse=FALSE)) %>%
+  mutate(mean_delta_scaled = min_max_scale(mean_delta, inverse=FALSE)) %>%
   mutate(euclidean_distance_metric_scaled = min_max_scale(euclidean_distance_metric, inverse=TRUE)) %>%
   mutate(combined_score_scaled = min_max_scale(combined_score, inverse=TRUE))
 
-max_ratio_scaled_auroc = pull(roc_auc(auc_data, Class, max_ratio_scaled), .estimate) # 0.630
-num_high_ratios_scaled_auroc = pull(roc_auc(auc_data, Class, num_high_ratios_scaled), .estimate) # 0.748
-proportion_high_ratio_pixels_scaled_auroc = pull(roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled), .estimate) # 0.733
-mean_delta_scaled_auroc = pull(roc_auc(auc_data, Class, mean_delta_scaled), .estimate) # 0.444
-euclidean_distance_metric_scaled_auroc = pull(roc_auc(auc_data, Class, euclidean_distance_metric_scaled), .estimate) # 0.673
-combined_score_scaled_auroc = pull(roc_auc(auc_data, Class, combined_score_scaled), .estimate) # 0.709
+max_ratio_scaled_auroc = pull(roc_auc(auc_data, Class, max_ratio_scaled, event_level = "second"), .estimate) # 0.630
+num_high_ratios_scaled_auroc = pull(roc_auc(auc_data, Class, num_high_ratios_scaled, event_level = "second"), .estimate) # 0.748
+proportion_high_ratio_pixels_scaled_auroc = pull(roc_auc(auc_data, Class, proportion_high_ratio_pixels_scaled, event_level = "second"), .estimate) # 0.733
+mean_delta_scaled_auroc = pull(roc_auc(auc_data, Class, mean_delta_scaled, event_level = "second"), .estimate) # 0.444
+euclidean_distance_metric_scaled_auroc = pull(roc_auc(auc_data, Class, euclidean_distance_metric_scaled, event_level = "second"), .estimate) # 0.673
+combined_score_scaled_auroc = pull(roc_auc(auc_data, Class, combined_score_scaled, event_level = "second"), .estimate) # 0.709
 
 max_ratio_scaled_auprc = calc_auprc(pull(auc_data, max_ratio_scaled), pull(auc_data, Class) == "Definitely problematic")
 num_high_ratios_scaled_auprc = calc_auprc(pull(auc_data, num_high_ratios_scaled), pull(auc_data, Class) == "Definitely problematic")
@@ -386,7 +407,8 @@ plot_data_year = inner_join(curated_article_data, article_data_year) %>%
   group_by(year, conclusion) %>%
   summarize(count = n()) %>%
   ungroup() %>%
-  mutate(year = as.integer(year))
+  mutate(year = as.integer(year)) %>%
+  mutate(conclusion = factor(conclusion, levels = c("Definitely okay", "Definitely problematic")))
 
 logistic_data = pivot_wider(plot_data_year, names_from = conclusion, values_from = count) %>%
   dplyr::rename(okay = `Definitely okay`, problematic = `Definitely problematic`)
@@ -396,14 +418,28 @@ logistic_results = tidy(logistic_model)
 slope = pull(logistic_results, estimate)[2] # 0.103
 p_value = pull(logistic_results, p.value)[2] # 6.76e-8
 
-ggplot(plot_data_year, aes(x = factor(year), y = count, fill = conclusion)) +
+calculate_percentage = function(counts) {
+  okay_percentage = round(100 * counts[1] / sum(counts), 1)
+  okay_percentage = paste0(okay_percentage, "%")
+  
+  return(c(okay_percentage, ""))
+}
+
+plot_data_percentage = group_by(plot_data_year, year) %>%
+  reframe(conclusion = conclusion, percentage = calculate_percentage(count))
+
+plot_data = inner_join(plot_data_year, plot_data_percentage)
+
+ggplot(plot_data, aes(x = factor(year), y = count, fill = conclusion)) +
   geom_col(position = "dodge") +
   xlab("Year") +
-  ylab("Count") +
+  ylab("Article count") +
   labs(fill = "") +
-  theme_bw(base_size = 14) +
-  scale_fill_manual(values = c(`Definitely okay` = "#5aae61", `Definitely problematic` = "#9970ab"))
-#  geom_text(aes(x = 12, y = 450, label = p_value), hjust = 1, vjust = 1)
+  theme_bw(base_size = 12) +
+  scale_fill_manual(values = c(`Definitely okay` = "#5aae61", `Definitely problematic` = "#9970ab")) +
+  geom_text(aes(label = percentage, y = count + 5), 
+            position = position_dodge(width = 0.9), vjust = -0.3, hjust = 0.4,
+            size = 3)
 
 ggsave("Figures/Proportion_Problematic_Over_Time_barplot.pdf", width=8.5)
 
@@ -444,7 +480,6 @@ actual = pull(plot_data_subjects, `Definitely problematic`)
 expected_proportions = pull(plot_data_subjects, n) / sum(pull(plot_data_subjects, n))
 p_value = chisq.test(actual, p = expected_proportions, correct = FALSE)$p.value
 p_text = paste0("p = ", sprintf("%.1e", p_value))
-print(p_text)
 
 ggplot(plot_data_subjects, aes(x = label, y = proportion_problematic)) +
   geom_col(aes(fill = severity)) +
