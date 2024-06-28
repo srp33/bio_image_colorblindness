@@ -76,7 +76,7 @@ ggplot(plot_data, aes(x = mean_delta)) +
 if (!dir.exists("Figures"))
   dir.create("Figures")
 
-ggsave("Figures/Mean_Pixelwise_Distance_histogram.pdf", width=6.5)
+save_fig("Mean_Pixelwise_Distance_histogram")
 
 # Understand more about the bimodal distribution.
 md = pull(plot_data, mean_delta)
@@ -96,7 +96,7 @@ ggplot(plot_data, aes(x = max_ratio)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Max_Color_Distance_Ratio_histogram.pdf", width=6.5)
+save_fig("Max_Color_Distance_Ratio_histogram")
 
 mr = pull(plot_data, max_ratio)
 print(dip.test(mr))
@@ -108,7 +108,7 @@ ggplot(plot_data, aes(x = num_high_ratios)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Num_High_Ratio_Pairs_histogram.pdf", width=6.5)
+save_fig("Num_High_Ratio_Pairs_histogram")
 
 nhr = pull(plot_data, num_high_ratios)
 print(dip.test(nhr))
@@ -120,7 +120,7 @@ ggplot(plot_data, aes(x = proportion_high_ratio_pixels)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs_histogram.pdf", width=6.5)
+save_fig("Proportion_Pixels_High_Ratio_Color_Pairs_histogram")
 
 phrp = pull(plot_data, proportion_high_ratio_pixels)
 print(dip.test(phrp))
@@ -132,7 +132,7 @@ ggplot(plot_data, aes(x = euclidean_distance_metric)) +
   ylab("Count") +
   theme_bw()
 
-ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs_histogram.pdf", width=6.5)
+save_fig("Mean_Euclidean_Distance_Color_Pairs_histogram")
 
 edm = pull(plot_data, euclidean_distance_metric)
 print(dip.test(edm))
@@ -260,7 +260,7 @@ ggplot(classification_data, aes(x = Class, y = mean_delta)) +
   ylab("Mean, pixel-wise color distance\nbetween original and simulated image") +
   geom_text(x = 1.5, y = 0.3, label=p)
 
-ggsave("Figures/Mean_Pixelwise_Distance_boxplot.pdf", width=6.5)
+save_fig("Mean_Pixelwise_Distance_boxplot")
 
 p = perform_two_sample_test(classification_data, "max_ratio")
 
@@ -272,7 +272,7 @@ ggplot(classification_data, aes(x = Class, y = log2(max_ratio))) +
   ylab("Max color-distance ratio (log2 scale)") +
   geom_text(x = 1.5, y = 5, label=p)
 
-ggsave("Figures/Max_Color_Distance_Ratio_boxplot.pdf", width=6.5)
+save_fig("Max_Color_Distance_Ratio_boxplot")
 
 p = perform_two_sample_test(classification_data, "num_high_ratios")
 
@@ -284,7 +284,7 @@ ggplot(classification_data, aes(x = Class, y = log(num_high_ratios))) +
   ylab("Number of high-ratio color pairs (log2 scale)") +
   geom_text(x = 1.5, y = 6.5, label=p)
 
-ggsave("Figures/Num_High_Ratio_Pairs_boxplot.pdf", width=6.5)
+save_fig("Num_High_Ratio_Pairs_boxplot")
 
 p = perform_two_sample_test(classification_data, "proportion_high_ratio_pixels")
 
@@ -296,7 +296,7 @@ ggplot(classification_data, aes(x = Class, y = proportion_high_ratio_pixels)) +
   ylab("Proportion of high-ratio pixels") +
   geom_text(x = 1.5, y = 0.5, label=p)
 
-ggsave("Figures/Proportion_Pixels_High_Ratio_Color_Pairs_boxplot.pdf", width=6.5)
+save_fig("Proportion_Pixels_High_Ratio_Color_Pairs_boxplot")
 
 p = perform_two_sample_test(classification_data, "euclidean_distance_metric")
 
@@ -308,7 +308,7 @@ ggplot(classification_data, aes(x = Class, y = euclidean_distance_metric)) +
   ylab("Mean Euclidean distance between\npixels for high-ratio color pairs") +
   geom_text(x = 1.5, y = 175, label=p)
 
-ggsave("Figures/Mean_Euclidean_Distance_Color_Pairs_boxplot.pdf", width=6.5)
+save_fig("Mean_Euclidean_Distance_Color_Pairs_boxplot")
 
 p = perform_two_sample_test(classification_data, "combined_score")
 
@@ -320,7 +320,7 @@ ggplot(classification_data, aes(x = Class, y = combined_score)) +
   ylab("Combined rank score") +
   geom_text(x = 1.5, y = 2500, label=p)
 
-ggsave("Figures/Combined_Rank_Score_boxplot.pdf", width=6.5)
+save_fig("Combined_Rank_Score_boxplot")
 
 # Calculate AUROC and AUPRC for each of these scores.
 
@@ -441,7 +441,7 @@ ggplot(plot_data, aes(x = factor(year), y = count, fill = conclusion)) +
             position = position_dodge(width = 0.9), vjust = -0.3, hjust = 0.4,
             size = 3)
 
-ggsave("Figures/Proportion_Problematic_Over_Time_barplot.pdf", width=8.5)
+save_fig("Proportion_Problematic_Over_Time_barplot")
 
 ###############################################
 # Evaluate trends by subdiscipline.
@@ -491,4 +491,4 @@ ggplot(plot_data_subjects, aes(x = label, y = proportion_problematic)) +
   guides(fill = FALSE) +
   geom_text(aes(x = 18.5, y = 38.5, label = p_text), size = 3)
 
-ggsave("Figures/Proportion_Problematic_Subjects_barplot.pdf", width=6.5)
+save_fig("Proportion_Problematic_Subjects_barplot")
