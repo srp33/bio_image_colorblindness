@@ -19,7 +19,7 @@ plot_prc(predictions, "Metrics_Testing_AUPRC")
 results_summary = read_tsv("Testing_Results_Metrics.tsv") %>%
   pivot_longer(everything()) %>%
   dplyr::rename(Metric = name, Value = value) %>%
-  clean_performance_metrics("eLife", "Logistic regression")
+  clean_performance_metrics("eLife", "Logistic Regression")
 
 ###########################################################
 # This is for the predictions based on CNN.
@@ -37,7 +37,7 @@ read_tsv("CNN_Metrics_final/metrics.tsv") %>%
   filter(Metric != "loss") %>%
   mutate(Metric = ifelse(Metric == "auc", "AUROC", Metric)) %>%
   mutate(Metric = ifelse(Metric == "prc", "AUPRC", Metric)) %>%
-  clean_performance_metrics("eLife", "Convolutional neural network") %>%
+  clean_performance_metrics("eLife", "Convolutional Neural Network") %>%
   bind_rows(results_summary) %>%
   write_tsv("All_Testing_Results.tsv")
 
