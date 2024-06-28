@@ -50,5 +50,4 @@ read_tsv("All_Testing_Results.tsv", col_types = "cccc") %>%
   mutate(`Model type` = factor(`Model type`, levels=c("Logistic regression", "Convolutional neural network"))) %>%
   mutate(Metric = factor(Metric, levels = c("AUROC", "AUPRC", "Accuracy", "Precision", "Recall", "F1 score", "True positives", "True negatives", "False positives", "False negatives"))) %>%
   arrange(`Test set`, `Model type`, Metric) %>%
-  write_tsv("All_Testing_Results.tsv")
-  View()
+  write_xlsx("All_Testing_Results.xlsx")
