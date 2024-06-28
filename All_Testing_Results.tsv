@@ -1,0 +1,41 @@
+Test set	Model type	Metric	Value
+eLife	Logistic regression	AUROC	0.82
+eLife	Logistic regression	AUPRC	0.49
+eLife	Logistic regression	Accuracy	0.75
+eLife	Logistic regression	Precision	0.38
+eLife	Logistic regression	Recall	0.75
+eLife	Logistic regression	F1 score	0.51
+eLife	Logistic regression	True positives	113
+eLife	Logistic regression	True negatives	545
+eLife	Logistic regression	False positives	184
+eLife	Logistic regression	False negatives	37
+eLife	Convolutional neural network	AUROC	0.89
+eLife	Convolutional neural network	AUPRC	0.75
+eLife	Convolutional neural network	Accuracy	0.9
+eLife	Convolutional neural network	Precision	0.7
+eLife	Convolutional neural network	Recall	0.67
+eLife	Convolutional neural network	F1 score	0.69
+eLife	Convolutional neural network	True positives	101
+eLife	Convolutional neural network	True negatives	686
+eLife	Convolutional neural network	False positives	43
+eLife	Convolutional neural network	False negatives	49
+PubMed Central	Logistic regression	AUROC	0.73
+PubMed Central	Logistic regression	AUPRC	0.16
+PubMed Central	Logistic regression	Accuracy	0.72
+PubMed Central	Logistic regression	Precision	0.17
+PubMed Central	Logistic regression	Recall	0.58
+PubMed Central	Logistic regression	F1 score	0.27
+PubMed Central	Logistic regression	True positives	60
+PubMed Central	Logistic regression	True negatives	802
+PubMed Central	Logistic regression	False positives	285
+PubMed Central	Logistic regression	False negatives	44
+PubMed Central	Convolutional neural network	AUROC	0.78
+PubMed Central	Convolutional neural network	AUPRC	0.39
+PubMed Central	Convolutional neural network	Accuracy	0.9
+PubMed Central	Convolutional neural network	Precision	0.43
+PubMed Central	Convolutional neural network	Recall	0.37
+PubMed Central	Convolutional neural network	F1 score	0.39
+PubMed Central	Convolutional neural network	True positives	38
+PubMed Central	Convolutional neural network	True negatives	1036
+PubMed Central	Convolutional neural network	False positives	51
+PubMed Central	Convolutional neural network	False negatives	66

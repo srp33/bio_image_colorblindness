@@ -16,6 +16,11 @@ plot_probabilities(predictions, "Metrics_Testing_Predictions")
 plot_roc(predictions, "Metrics_Testing_ROC")
 plot_prc(predictions, "Metrics_Testing_AUPRC")
 
+results_summary = read_tsv("Testing_Results_Metrics.tsv") %>%
+  pivot_longer(everything()) %>%
+  dplyr::rename(Metric = name, Value = value) %>%
+  clean_performance_metrics("eLife", "Logistic regression")
+
 ###########################################################
 # This is for the predictions based on CNN.
 ###########################################################
@@ -26,6 +31,15 @@ predictions = read_tsv("CNN_Metrics_final/predictions.tsv") %>%
 plot_probabilities(predictions, "CNN_Testing_predictions")
 plot_roc(predictions, "CNN_Testing_ROC")
 plot_prc(predictions, "CNN_Testing_AUPRC")
+
+read_tsv("CNN_Metrics_final/metrics.tsv") %>%
+  dplyr::rename(Metric = metric, Value = value) %>%
+  filter(Metric != "loss") %>%
+  mutate(Metric = ifelse(Metric == "auc", "AUROC", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "prc", "AUPRC", Metric)) %>%
+  clean_performance_metrics("eLife", "Convolutional neural network") %>%
+  bind_rows(results_summary) %>%
+  write_tsv("All_Testing_Results.tsv")
 
 ###########################################################
 # Summarize the misclassifications for CNN.

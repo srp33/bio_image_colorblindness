@@ -383,6 +383,8 @@ plot_roc = function(predictions, out_file_name) {
   
   plot(p)
   save_fig(out_file_name)
+  
+  return(r$auc)
 }
 
 plot_prc = function(predictions, out_file_name) {
@@ -403,9 +405,30 @@ plot_prc = function(predictions, out_file_name) {
   plot(p)
   
   save_fig(out_file_name)
+  
+  return(auprc)
 }
 
 save_fig = function(file_name, width = 6.5, height=5) {
   ggsave(paste0("Figures/", file_name, ".png"), width=width, height=height)
   ggsave(paste0("Figures/", file_name, ".pdf"), width=width, height=height)
+}
+
+clean_performance_metrics = function(data, test_set, model_type) {
+  mutate(data, Metric = ifelse(Metric == "auroc", "AUROC", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "auprc", "AUPRC", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "accuracy", "Accuracy", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "precision", "Precision", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "recall", "Recall", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "f1", "F1 score", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "tp", "True positives", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "tn", "True negatives", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "fp", "False positives", Metric)) %>%
+  mutate(Metric = ifelse(Metric == "fn", "False negatives", Metric)) %>%
+  mutate(Value = as.character(Value)) %>%
+  mutate(Value = ifelse(Metric %in% c("AUROC", "AUPRC", "Accuracy", "Precision", "Recall", "F1 score"), round(as.numeric(Value), 2), Value)) %>%
+  mutate(`Test set` = test_set) %>%
+  mutate(`Model type` = model_type) %>%
+  select(`Test set`, `Model type`, Metric, Value) %>%
+  return()
 }
